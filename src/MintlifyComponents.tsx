@@ -1,8 +1,8 @@
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 /* Stub components that replicate Mintlify's MDX components for local rendering */
 
-export const Card = ({ title, icon, href, children }: { title?: string; icon?: string; href?: string; children?: ReactNode }) => (
+export const Card = ({ title, icon: _icon, href, children }: { title?: string; icon?: string; href?: string; children?: ReactNode }) => (
   <a href={href ? `/docs${href}` : '#'} style={{
     display: 'block', background: 'var(--bg-card)', border: '1px solid var(--border-color)',
     borderRadius: 12, padding: '20px 24px', textDecoration: 'none', color: 'inherit',
