@@ -887,10 +887,10 @@ const TOTAL = 14;
 
   // Contact info — no emojis, use labels
   const contacts = [
-    { label: "WEB", text: "novadao.xyz" },
-    { label: "X", text: "@NovaDAO_xyz" },
+    { label: "WEB", text: "novadao.net" },
+    { label: "X", text: "@NovaDAO_net" },
     { label: "TG", text: "t.me/novadao" },
-    { label: "EMAIL", text: "hello@novadao.xyz" },
+    { label: "EMAIL", text: "hello@novadao.net" },
   ];
 
   contacts.forEach((c, i) => {

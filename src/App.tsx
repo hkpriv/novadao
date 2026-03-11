@@ -502,7 +502,7 @@ function App() {
             <div className="footer-group">
               <h4>Community</h4>
               <a href="https://t.me/novadao">Telegram</a>
-              <a href="https://x.com/NovaDAO_xyz">Twitter</a>
+              <a href="https://x.com/NovaDAO_net">Twitter</a>
             </div>
           </div>
 

@@ -22,17 +22,17 @@
   "topbarLinks": [
     {
       "name": "Launch App",
-      "url": "https://app.novadao.xyz"
+      "url": "https://app.novadao.net"
     }
   ],
   "topbarCtaButton": {
     "name": "Get Started",
-    "url": "https://app.novadao.xyz/launch"
+    "url": "https://app.novadao.net/launch"
   },
   "tabs": [
     {
       "name": "API Reference",
-      "url": "https://api.novadao.xyz/docs"
+      "url": "https://api.novadao.net/docs"
     }
   ],
   "anchors": [
@@ -114,6 +114,6 @@
     "indexHiddenPages": false
   },
   "api": {
-    "baseUrl": "https://api.novadao.xyz"
+    "baseUrl": "https://api.novadao.net"
   }
 }
