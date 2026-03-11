@@ -1,0 +1,183 @@
+---
+title: Token Mechanics
+description: Detailed mechanics of NOVA token issuance, burn mechanisms, and governance-controlled supply management on Stellar.
+icon: "gears"
+---
+
+# Token Mechanics
+
+This page provides a technical deep dive into how NOVA token supply is managed. Every aspect of token issuance and destruction is governance-controlled, onchain, and independently verifiable. There are no automated emissions, no admin minting keys, and no hidden inflation mechanisms.
+
+---
+
+## Issuance: Governance-Gated Only
+
+NOVA tokens can only be minted through governance proposals that pass the decision market evaluation. There is no other minting pathway.
+
+### The Proposal Lifecycle for Minting
+
+Every minting event follows four stages:
+
+<Steps>
+  <Step title="Stage 1: Creation">
+    A NOVA holder creates a minting proposal through the NovaDAO interface or directly via the Soroban smart contract. The proposal specifies:
+
+    - **Mint amount:** The exact number of new NOVA tokens to create
+    - **Recipient address:** The Stellar address that will receive the minted tokens
+    - **Rationale:** A text description explaining why the minting is needed
+
+    The proposal is immediately visible onchain. The mint amount and recipient are public before any trading begins.
+  </Step>
+  <Step title="Stage 2: Stake Accumulation">
+    The proposal must accumulate **200,000 NOVA tokens** (2% of initial 10M supply) in staking support to activate. This threshold serves as spam prevention.
+
+    - **No lockup period:** Stakers can withdraw at any time
+    - **No slashing:** Staked tokens are never at risk
+    - **Multiple stakers:** Many holders can contribute toward the threshold
+  </Step>
+  <Step title="Stage 3: Conditional Markets (3 Days)">
+    Once activated, two conditional markets open on the Stellar DEX:
+
+    - **Pass market:** Trades NOVA at the price it would be worth if the minting occurs
+    - **Fail market:** Trades NOVA at the price it would be worth if the minting is rejected
+
+    Traders evaluate whether the new supply will create value (e.g., funding a valuable ecosystem initiative) or dilute existing holders.
+  </Step>
+  <Step title="Stage 4: TWAP Resolution">
+    After the 3-day trading period:
+
+    - If **pass TWAP > fail TWAP** by the required threshold: the tokens mint immediately
+    - If **fail TWAP > pass TWAP**: the proposal is rejected, no tokens are minted
+
+    Execution is automatic and atomic via the Soroban contract.
+  </Step>
+</Steps>
+
+---
+
+## Inflation Structure
+
+### No Scheduled Emissions
+
+Unlike many protocols that have fixed inflation schedules (e.g., "2% annual inflation"), NOVA has **zero scheduled emissions**. The only way new tokens enter circulation is through governance-approved minting proposals.
+
+### No Hard Cap
+
+The protocol does not enforce a maximum supply at the contract level. This is intentional -- a hard cap would prevent the protocol from funding future development, grants, or strategic initiatives without requiring a token migration.
+
+### Governance as the Sole Gate
+
+The practical inflation rate of NOVA is determined entirely by governance outcomes. If the community consistently rejects minting proposals, the supply remains static. If the community approves strategic minting that creates value, the supply expands.
+
+| Property | NOVA Approach |
+|---|---|
+| Scheduled inflation | None |
+| Maximum supply | None (governance-controlled) |
+| Minting mechanism | Governance proposal + decision market |
+| Admin minting key | Does not exist |
+| Automatic emissions | Do not exist |
+
+<Note>
+The absence of a hard cap and scheduled emissions makes NOVA fundamentally different from fixed-supply tokens. Inflation is not a predetermined variable -- it is a governance outcome. This means the community has full control over dilution, and every minting event is a conscious, market-evaluated decision.
+</Note>
+
+---
+
+## Burn Mechanisms
+
+NOVA tokens can be permanently removed from circulation through several mechanisms:
+
+### Bid Wall Burns
+
+When NOVA holders sell tokens to the bid wall during the 90-day post-ICO window, those tokens are permanently burned. This reduces the circulating supply and increases the NAV per remaining token.
+
+### Governance-Approved Burns
+
+Any NOVA holder can propose a token burn through the governance process. If the decision market determines that burning tokens will increase the value of remaining tokens, the proposal passes and the burn executes.
+
+### Fee Burns (Potential)
+
+The community can propose to direct a portion of protocol fees toward NOVA buyback and burn. This mechanism is not active by default but can be activated through governance.
+
+---
+
+## Onchain Fund Flow
+
+When a minting proposal passes and tokens are created:
+
+1. **Minted tokens transfer directly to the proposal-specified recipient.** There is no intermediary address, no staging wallet, and no manual distribution.
+
+2. **The recipient address is dynamic per proposal.** Each minting proposal specifies its own recipient. There is no fixed treasury address that receives all minted tokens.
+
+3. **The recipient address is public from creation.** Anyone can inspect where newly minted tokens will go before the conditional markets even begin trading. Full transparency, zero ambiguity.
+
+---
+
+## Verification and Tracking
+
+Every aspect of NOVA token mechanics is verifiable onchain:
+
+<Tabs>
+  <Tab title="Supply Queries">
+    - **Horizon API:** `GET /assets?asset_code=NOVA&asset_issuer={issuer_address}`
+    - **Soroban RPC:** Query the governance contract state for current supply
+    - **NovaDAO API:** `api.novadao.xyz/supply` for formatted supply data
+    - **Block explorers:** Stellar Expert, StellarChain
+  </Tab>
+  <Tab title="Minting History">
+    - Query all historical governance proposals of type "mint" through the Soroban contract
+    - Each proposal records: amount, recipient, TWAP results, timestamp, and execution status
+    - Full proposal history is browsable at [app.novadao.xyz](https://app.novadao.xyz)
+  </Tab>
+  <Tab title="Burn History">
+    - Bid wall burns are recorded in the bid wall Soroban contract
+    - Governance burns are recorded in the governance contract
+    - All burn transactions are visible on standard Stellar block explorers
+  </Tab>
+</Tabs>
+
+---
+
+## Minting Gate Summary
+
+Every new NOVA token must pass through this gate:
+
+```
+Governance Proposal
+    -> 200,000 NOVA staked (2% of initial 10M supply)
+    -> 24-hour grace period
+    -> 3-day conditional market trading on SDEX
+    -> TWAP resolution (pass threshold: +3% for non-team, -3% for team)
+    -> Automatic execution via Soroban contract
+```
+
+There are no shortcuts, no exceptions, and no admin overrides.
+
+---
+
+## Regulatory Compliance
+
+The NOVA token mechanics are designed for transparency and regulatory compatibility:
+
+- **Every issuance is publicly proposed** before it occurs
+- **Every issuance is market-evaluated** through a 3-day trading period
+- **Every issuance is onchain-verified** and permanently recorded
+- **No hidden inflation** mechanisms exist at any level of the protocol
+- **Supply data is publicly queryable** through standard blockchain infrastructure
+
+<Tip>
+For regulatory inquiries, all NOVA supply data can be independently reconstructed from the Stellar ledger without relying on any NovaDAO-operated infrastructure. The blockchain is the authoritative source of truth.
+</Tip>
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="NOVA Token Details" icon="coins" href="/token/details">
+    Review the NOVA token overview, distribution, and utility.
+  </Card>
+  <Card title="Protocol Analytics" icon="chart-bar" href="/protocol/analytics">
+    View real-time protocol data, TVL, and governance statistics.
+  </Card>
+</CardGroup>

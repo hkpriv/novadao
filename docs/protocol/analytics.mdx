@@ -1,0 +1,174 @@
+---
+title: Protocol Analytics
+description: Real-time statistics, data resources, and developer tools for the NovaDAO protocol on Stellar.
+icon: "chart-bar"
+---
+
+# Protocol Analytics
+
+NovaDAO is committed to full transparency. All protocol data -- from treasury balances to governance outcomes to trading volumes -- is publicly accessible onchain and through dedicated analytics platforms. This page provides an overview of where to find data and how to access it.
+
+---
+
+## Key Metrics
+
+The following metrics are tracked in real-time across the NovaDAO protocol:
+
+| Metric | Description | Where to Find |
+|---|---|---|
+| **Total Value Locked (TVL)** | Combined value of all assets in NovaDAO treasuries, liquidity pools, and bid walls | NovaDAO dashboard, DeFiLlama |
+| **Projects Launched** | Number of projects that have completed ICOs through NovaDAO | [app.novadao.xyz](https://app.novadao.xyz) |
+| **Total XLM Raised** | Cumulative USDC raised across all ICOs (denominated in XLM equivalent) | NovaDAO API |
+| **Governance Proposals** | Total proposals submitted, passed, and rejected across all projects | Soroban contract queries |
+| **Governance Participation** | Number of unique traders participating in decision markets | SDEX trading data |
+| **Bid Wall Activity** | Total tokens burned and USDC distributed through bid walls | Soroban contract state |
+
+---
+
+## Analytics Platforms
+
+### NovaDAO Dashboard
+
+The primary source for protocol-level analytics is the NovaDAO application at [app.novadao.xyz](https://app.novadao.xyz). The dashboard provides:
+
+- Real-time TVL across all projects
+- Per-project treasury balances and spending history
+- Active and historical governance proposals with TWAP data
+- Bid wall status and NAV calculations
+- Trading volume in conditional markets
+
+### DeFiLlama
+
+NovaDAO's TVL is tracked on [DeFiLlama](https://defillama.com), the industry-standard DeFi analytics platform. DeFiLlama provides:
+
+- Historical TVL trends
+- Protocol rankings across all chains
+- Comparison with other governance and fundraising protocols
+- Chain-specific breakdowns for Stellar
+
+### Stellar Block Explorers
+
+All NovaDAO transactions are visible on standard Stellar block explorers:
+
+<CardGroup cols={2}>
+  <Card title="Stellar Expert" icon="magnifying-glass" href="https://stellar.expert">
+    Comprehensive Stellar block explorer with asset analytics, account history, and network statistics.
+  </Card>
+  <Card title="StellarChain" icon="link-simple" href="https://stellarchain.io">
+    Alternative Stellar explorer with transaction search, ledger browsing, and asset tracking.
+  </Card>
+</CardGroup>
+
+---
+
+## Developer Resources
+
+### Open-Source Contracts
+
+All NovaDAO smart contracts are open-source and available on GitHub:
+
+- **Governance contracts:** Decision market creation, conditional token management, TWAP calculation
+- **Treasury contracts:** USDC custody, disbursement rules, budget enforcement
+- **Bid wall contracts:** NAV calculation, buyback/burn logic, 90-day expiration
+- **ICO contracts:** Commitment handling, pro-rata distribution, refund mechanics
+- **Performance package contracts:** Price milestone tracking, vesting enforcement
+
+Contracts are written in Rust, compiled to WASM, and deployed on Soroban.
+
+### API Endpoints
+
+NovaDAO provides a REST API for programmatic access to protocol data:
+
+| Endpoint | Data |
+|---|---|
+| `api.novadao.xyz/supply` | Current NOVA token supply and distribution |
+| `api.novadao.xyz/projects` | List of all launched projects with key metrics |
+| `api.novadao.xyz/treasury/{project}` | Treasury balance and transaction history |
+| `api.novadao.xyz/proposals/{project}` | Proposal history with TWAP data and outcomes |
+| `api.novadao.xyz/health` | Protocol status and uptime |
+
+<Note>
+The NovaDAO API is read-only and does not require authentication for public data. Rate limits apply to prevent abuse. For high-frequency data needs, query the Stellar Horizon API or Soroban RPC directly.
+</Note>
+
+### Stellar Infrastructure
+
+For direct onchain queries, use the standard Stellar developer tools:
+
+| Tool | Use Case |
+|---|---|
+| **Horizon API** | REST API for querying accounts, transactions, assets, and operations on Stellar |
+| **Soroban RPC** | Query and invoke Soroban smart contracts directly |
+| **Stellar SDK** | Client libraries (JavaScript, Python, Go, Java) for building integrations |
+
+---
+
+## Soroban Contract Addresses
+
+NovaDAO's smart contracts are deployed at verified addresses on the Stellar network. Current and historical contract versions are listed below:
+
+| Contract | Version | Status |
+|---|---|---|
+| Governance (Decision Markets) | v1.0 | Active |
+| Treasury Management | v1.0 | Active |
+| Bid Wall | v1.0 | Active |
+| ICO / Token Sale | v1.0 | Active |
+| Performance Package | v1.0 | Active |
+
+<Tip>
+Contract addresses can be verified on Stellar Expert. The contract WASM hashes match the open-source code on GitHub, allowing independent verification that the deployed contracts match the audited source code.
+</Tip>
+
+---
+
+## Protocol Revenue
+
+NovaDAO generates revenue through protocol-level fees:
+
+| Fee Source | Rate | Recipient |
+|---|---|---|
+| Decision market trades | 0.25% per trade | NovaDAO protocol treasury |
+| Bid wall sales | 1.0% per sale | NovaDAO protocol treasury |
+
+Revenue from these fees funds NovaDAO's ongoing development, infrastructure costs, and ecosystem growth initiatives. Fee allocation and usage are governed by NOVA token holders through the standard decision market governance process.
+
+---
+
+## Transparency Commitments
+
+NovaDAO operates under the following transparency principles:
+
+1. **All protocol data is onchain.** There are no offchain databases, no private ledgers, and no information that is not independently verifiable.
+
+2. **All contracts are open-source.** Anyone can read, audit, and verify the code that governs the protocol.
+
+3. **All governance is public.** Every proposal, every trade in a decision market, and every TWAP calculation is recorded on the Stellar ledger.
+
+4. **All financial flows are traceable.** Treasury spending, fee collection, token minting, and token burning are all visible through standard block explorers and APIs.
+
+---
+
+## External Links
+
+| Resource | URL |
+|---|---|
+| NovaDAO Application | [app.novadao.xyz](https://app.novadao.xyz) |
+| NovaDAO Documentation | [doc.novadao.xyz](https://doc.novadao.xyz) |
+| DeFiLlama | [defillama.com](https://defillama.com) |
+| Stellar Expert | [stellar.expert](https://stellar.expert) |
+| StellarChain | [stellarchain.io](https://stellarchain.io) |
+| GitHub | [github.com/novadao](https://github.com/novadao) |
+| API | [api.novadao.xyz](https://api.novadao.xyz) |
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="NOVA Token Details" icon="coins" href="/token/details">
+    Learn about the NOVA token supply, distribution, and utility.
+  </Card>
+  <Card title="Governance Overview" icon="scale-balanced" href="/governance/overview">
+    Understand how decision markets power NovaDAO governance.
+  </Card>
+</CardGroup>

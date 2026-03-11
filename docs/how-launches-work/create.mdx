@@ -1,0 +1,157 @@
+---
+title: Getting Listed
+description: Step-by-step guide to creating a project listing on NovaDAO and preparing for your token launch on Stellar.
+icon: "rocket"
+---
+
+# Getting Listed on NovaDAO
+
+Launching a project on NovaDAO requires submitting your project details, configuring your token parameters, and preparing your intellectual property for transfer. This page covers everything you need to provide and the process from application to ICO.
+
+---
+
+## What You Need to Provide
+
+NovaDAO requires eight items from every founding team. Each item is essential to the listing process and the legal/technical infrastructure that protects both founders and investors.
+
+### 1. Project Information
+
+<CardGroup cols={1}>
+  <Card title="Required Details" icon="circle-info">
+    - **Project name:** The official name of your project or protocol
+    - **Short description:** 1-2 sentences explaining what your project does (used in listings and search)
+    - **Long description:** A detailed explanation of your project, its value proposition, target market, and current traction
+  </Card>
+</CardGroup>
+
+### 2. Token Details
+
+- **Token name:** The full name of your Stellar Asset (e.g., "Orion Protocol Token")
+- **Ticker symbol:** 4-12 character symbol for your token on SDEX (e.g., "ORION")
+
+<Tip>
+Choose a memorable and unique ticker. It will represent your project across the entire Stellar ecosystem -- on SDEX, in wallets, on block explorers, and in analytics platforms. Check Stellar Expert to ensure your chosen ticker is not already in widespread use.
+</Tip>
+
+### 3. Visual Assets
+
+- **Project logo:** High-resolution image used on the NovaDAO platform and documentation
+- **Token image:** Square image displayed alongside your token on SDEX, wallets, and trading interfaces
+
+Both images should be provided in PNG or SVG format at a minimum of 512x512 pixels.
+
+### 4. Minimum Raise Amount
+
+The minimum amount of USDC that must be committed during the ICO for the sale to succeed. If commitments fall below this threshold, all participants receive full refunds.
+
+<Warning>
+Budget your minimum raise carefully. It should cover your operating needs for at least 12-18 months at the specified monthly budget rate. Setting it too high risks failing the ICO. Setting it too low may leave you underfunded.
+</Warning>
+
+### 5. Monthly Team Budget
+
+The recurring USDC amount your team will access from the treasury for operations. This is capped at **1/6 of the minimum raise amount** and does not require a governance proposal.
+
+| Parameter | Constraint |
+|---|---|
+| Maximum monthly budget | 1/6 of minimum raise |
+| Access method | Automatic, no proposal needed |
+| Above-budget spending | Requires governance proposal |
+
+### 6. Performance Package (Optional)
+
+A token allocation for the founding team that unlocks at price milestones. This is optional -- founders can configure it or skip it entirely.
+
+If configured, the performance package distributes tokens across **five price-based tranches**:
+
+| Tranche | Unlock Price | Tokens Unlocked |
+|---|---|---|
+| 1 | 2x ICO price | 1/5 of package |
+| 2 | 4x ICO price | 1/5 of package |
+| 3 | 8x ICO price | 1/5 of package |
+| 4 | 16x ICO price | 1/5 of package |
+| 5 | 32x ICO price | 1/5 of package |
+
+All tranches have a **minimum 18-month lockup** from the ICO date and require a **3-month TWAP verification** to confirm the price level has been sustained.
+
+### 7. Intellectual Property
+
+A complete inventory of IP assets to be transferred to the project entity:
+
+- **Domains:** All web domains associated with the project
+- **Code repositories:** GitHub organizations, repositories, and access
+- **Social media accounts:** Twitter/X, Telegram, Discord, and other accounts
+- **Trademarks and branding:** Any registered or unregistered marks
+- **Other IP:** Patents, licenses, proprietary data, or other relevant assets
+
+### 8. Legal Entity
+
+NovaDAO-launched projects operate through a legal entity structure. You will work with the NovaDAO team and legal counsel to establish the appropriate entity for your jurisdiction.
+
+---
+
+## The Listing Process
+
+<Steps>
+  <Step title="Submit the Application">
+    Complete the project intake form on [app.novadao.xyz](https://app.novadao.xyz) with all eight items above. The more complete and detailed your submission, the faster the review process.
+  </Step>
+  <Step title="Review and Communication">
+    The NovaDAO team reviews your submission and contacts you to discuss details, clarify parameters, and address any gaps. You will be added to a dedicated Telegram channel for coordination.
+  </Step>
+  <Step title="Legal and Technical Setup">
+    Work with the NovaDAO team to establish your legal entity, prepare IP transfer documents, and configure your Soroban smart contracts on Stellar. This includes treasury parameters, bid wall configuration, and performance package setup.
+  </Step>
+  <Step title="Pre-Launch Preparation">
+    Execute your pre-launch communication plan: articles, social media, community engagement. You need at least 1 week of public lead-up before the ICO opens.
+  </Step>
+  <Step title="ICO Launch">
+    Your project goes live on NovaDAO. The 4-day commitment window opens and investors can commit USDC on the Stellar network. See [The ICO](/how-launches-work/sale) for details.
+  </Step>
+</Steps>
+
+---
+
+## Smart Contract Deployment
+
+All NovaDAO project contracts are deployed on **Soroban**, Stellar's smart contract platform. The contracts handle:
+
+- **Treasury management:** USDC custody and disbursement rules
+- **Token issuance:** Initial distribution and governance-gated minting
+- **Bid wall:** NAV calculation and buyback/burn operations
+- **Performance package:** Price milestone tracking and vesting logic
+- **Governance:** Proposal creation, conditional market management, and TWAP resolution
+
+Contracts are written in Rust, compiled to WASM, and deployed to the Stellar network. All contract code is open-source and auditable.
+
+<Note>
+You do not need to write or deploy smart contracts yourself. The NovaDAO team handles all technical deployment. Your responsibility is providing the project information and parameters that configure the contracts.
+</Note>
+
+---
+
+## After Listing
+
+Once your ICO completes successfully:
+
+1. Your treasury is live and governed by decision markets
+2. Your monthly budget becomes accessible
+3. The bid wall activates (if funded above the minimum goal)
+4. Your token trades on SDEX
+5. Community governance begins -- token holders can submit proposals immediately
+
+---
+
+## Next Steps
+
+<CardGroup cols={3}>
+  <Card title="Are You Ready?" icon="clipboard-check" href="/how-launches-work/are-you-ready">
+    Review the readiness checklist before applying.
+  </Card>
+  <Card title="The ICO" icon="coins" href="/how-launches-work/sale">
+    Learn how the 4-day commitment and distribution process works.
+  </Card>
+  <Card title="The STAMP" icon="stamp" href="/how-launches-work/stamp">
+    Need to raise private capital before the ICO? Learn about the STAMP.
+  </Card>
+</CardGroup>

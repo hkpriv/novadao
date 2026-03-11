@@ -1,0 +1,203 @@
+---
+title: NOVA Token Details
+description: Complete details on the NOVA governance and utility token — supply, issuance, distribution, and verification on the Stellar blockchain.
+icon: "coins"
+---
+
+# NOVA Token Details
+
+NOVA is the governance and utility token of the NovaDAO protocol. It is issued as a Stellar Asset (SEP-41) on the Stellar blockchain. This page provides complete transparency on token supply, issuance mechanics, distribution, and verification methods.
+
+---
+
+## Token Overview
+
+| Parameter | Value |
+|---|---|
+| **Token name** | NOVA |
+| **Blockchain** | Stellar |
+| **Asset standard** | Stellar Asset (SEP-41) |
+| **Issuing account** | Published on novadao.xyz/token |
+| **Hard cap** | None (governance-controlled) |
+| **Initial supply per project** | 10,000,000 tokens |
+| **Scheduled inflation** | None |
+| **Issuance mechanism** | Governance proposal + decision market approval |
+
+---
+
+## Supply Information
+
+### No Hard Cap
+
+The NOVA token does not have a hard supply cap enforced at the asset level. The issuing authority is **controlled by a Soroban governance contract**, not by a private key or multisig wallet.
+
+This is a deliberate design choice. A hard cap creates artificial scarcity that may not align with a project's long-term needs. Instead, NovaDAO uses **governance-gated issuance**: every new token that enters circulation must be approved through a decision market process where the community evaluates whether the minting will increase or decrease token value.
+
+<Note>
+The absence of a hard cap does not mean unlimited inflation. It means that supply changes are governed by the same market mechanism that governs all other protocol decisions. If minting new tokens would dilute existing holders without creating offsetting value, the decision market will reject the proposal. The market acts as the cap.
+</Note>
+
+### Real-Time Supply Verification
+
+NOVA's total supply is transparently queryable at any time through multiple sources:
+
+| Source | Method |
+|---|---|
+| **Stellar Expert** | Navigate to the NOVA asset page on stellarexpert.com |
+| **StellarChain** | Search for the NOVA asset on stellarchain.io |
+| **Horizon API** | Query the `/assets` endpoint with the NOVA asset code and issuer |
+| **Soroban RPC** | Call the governance contract's `total_supply()` function |
+| **NovaDAO API** | `GET https://api.novadao.xyz/v1/supply` |
+
+All supply data is derived directly from the Stellar ledger. There is no offchain state, no hidden minting, and no discrepancy between what the API reports and what exists onchain.
+
+---
+
+## Initial Distribution
+
+Every project launched on NovaDAO begins with a **10 million token** distribution through the ICO process. This initial supply is allocated as follows:
+
+| Allocation | Tokens | Percentage |
+|---|---|---|
+| **ICO participants** | 10,000,000 | 100% of initial supply |
+| **Private pre-allocations** | 0 | None |
+| **Team pre-allocations** | 0 | None |
+| **Advisor allocations** | 0 | None |
+| **Ecosystem fund** | 0 | None |
+
+At launch, 100% of the initial token supply goes to public ICO participants. There are no insider allocations, no reserved tranches, and no hidden distributions.
+
+<Tip>
+NovaDAO launches are genuinely fair launches. The team earns tokens through the performance package mechanism, which only unlocks at price milestones verified by 3-month TWAPs after an 18-month lockup. See [The ICO](/how-launches-work/sale) for details on the performance package.
+</Tip>
+
+### Additional Token Allocations
+
+Beyond the initial 10M distribution, the only additional tokens that enter the supply are:
+
+- **2.9M tokens** allocated to SDEX liquidity pools at ICO completion
+- **Up to 12.9M tokens** in the performance package (unlocked at price milestones over 18+ months)
+- **Governance-approved minting** through the proposal process
+
+Total potential supply including all sources: **25.8M tokens** (10M ICO + 2.9M LP + 12.9M performance) plus any governance-approved minting.
+
+---
+
+## Token Utility
+
+### Governance Participation
+
+NOVA token holders can participate in decision markets across all NovaDAO-launched projects. This includes:
+
+- **Protocol parameter changes:** Modify fee structures, thresholds, and configuration
+- **Treasury management:** Approve spending from governance-controlled treasuries
+- **Supply decisions:** Evaluate proposals to mint additional tokens
+- **Liquidity management:** Adjust SDEX liquidity provided by project treasuries
+
+### Staking for Proposals
+
+NOVA tokens can be staked to activate governance proposals. The staking threshold is **200,000 NOVA** (2% of the initial 10M supply). Staking carries:
+
+- **No lockup period:** Unstake at any time
+- **No slashing risk:** Your tokens are never at risk
+- **Zero financial cost:** Staking is purely a signal of seriousness
+
+### Fee Structure
+
+NovaDAO charges fees on protocol operations:
+
+| Operation | Fee |
+|---|---|
+| Decision market trades | 0.25% |
+| Bid wall sales | 1.0% |
+
+Fee revenue flows to the NovaDAO protocol treasury and is governed by NOVA token holders through decision markets.
+
+---
+
+## Issuance Mechanism
+
+All new NOVA token minting follows the governance proposal process. There is no scheduled inflation, no automatic emissions, and no admin minting function.
+
+<Steps>
+  <Step title="Public Proposal">
+    A token holder creates a minting proposal specifying the number of tokens to mint and the recipient Stellar address. The proposal is immediately visible onchain.
+  </Step>
+  <Step title="Stake Activation">
+    The proposal must accumulate **200,000 NOVA tokens** in stakes (2% of initial 10M supply) from token holders who support bringing the proposal to a market evaluation.
+  </Step>
+  <Step title="Market Evaluation">
+    Once activated, conditional markets open on SDEX for **3 days**. Traders evaluate whether the minting proposal will increase or decrease token value.
+  </Step>
+  <Step title="TWAP Resolution">
+    After the trading period, TWAPs are compared. If the pass TWAP exceeds the fail TWAP by the required threshold, the tokens are minted and delivered to the specified address automatically via the Soroban contract.
+  </Step>
+</Steps>
+
+### Issuance Gates
+
+| Gate | Requirement |
+|---|---|
+| **Staking threshold** | 200,000 NOVA (2% of initial 10M) |
+| **Market evaluation** | 3-day conditional market trading on SDEX |
+| **TWAP approval** | Pass TWAP must exceed Fail TWAP by the required threshold |
+| **Execution** | Automatic via Soroban contract -- no human intervention |
+
+---
+
+## Verification and Transparency
+
+All NOVA token data is permanently recorded on the Stellar blockchain and independently verifiable:
+
+| Data Point | How to Verify |
+|---|---|
+| **Current supply** | Horizon API: `GET /assets?asset_code=NOVA&asset_issuer={issuer}` |
+| **Transaction history** | Stellar Expert or StellarChain block explorer |
+| **Contract state** | Soroban RPC: query the NovaDAO governance contract |
+| **Minting history** | Review all governance proposals and their TWAP outcomes |
+| **Holder distribution** | Trustline data on the Stellar ledger |
+
+<Tip>
+You do not need to trust NovaDAO's reporting. Every piece of supply and distribution data is onchain and queryable through standard Stellar infrastructure. Build your own monitoring dashboard using the Horizon API if you want independent verification.
+</Tip>
+
+---
+
+## Regulatory Transparency
+
+NovaDAO's token design prioritizes regulatory transparency. The following properties are documented for compliance purposes:
+
+### Supply Transparency
+- Total supply is queryable in real-time from the Stellar ledger
+- No hidden or unrecorded supply exists offchain
+- All supply changes are recorded as verifiable Stellar transactions
+
+### Issuance Predictability
+- No scheduled inflation or automatic emissions
+- All issuance requires public proposal and decision market approval
+- Issuance amounts and recipients are publicly visible before execution
+
+### Absence of Hidden Inflation
+- Minting authority is controlled by a Soroban governance contract, not a private key
+- Every minting event is preceded by a 3-day market evaluation period
+- No admin function can mint tokens outside the governance process
+
+<Warning>
+This documentation is provided for informational and transparency purposes. It does not constitute legal advice or a legal opinion on the regulatory classification of the NOVA token in any jurisdiction. Token holders and prospective investors should consult with legal counsel in their own jurisdictions regarding applicable regulations.
+</Warning>
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Token Mechanics" icon="gears" href="/token/mechanics">
+    Deep dive into the governance-gated issuance process and its four stages.
+  </Card>
+  <Card title="Governance Overview" icon="scale-balanced" href="/governance/overview">
+    Understand how decision markets control token issuance and all other governance decisions.
+  </Card>
+  <Card title="Protocol Analytics" icon="chart-bar" href="/protocol/analytics">
+    Access real-time data on supply, trading volume, and protocol health.
+  </Card>
+</CardGroup>

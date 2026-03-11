@@ -1,0 +1,121 @@
+---
+title: Introduction to Decision Markets
+description: How NovaDAO replaces traditional token voting with trading-based governance powered by the Stellar DEX.
+icon: "scale-balanced"
+---
+
+# Introduction to Decision Markets
+
+NovaDAO uses **decision markets** -- a trading-based governance mechanism -- instead of traditional one-token-one-vote systems. Decision markets aggregate information from all participants through economic incentives, producing governance outcomes that are more robust, more resistant to capture, and more reflective of actual community sentiment.
+
+---
+
+## First, Some Context
+
+Governance is the hardest problem in decentralized organizations. The dominant approach -- token voting -- has well-documented failure modes:
+
+- **Low participation:** Typical governance votes attract less than 10% of token holders
+- **Whale dominance:** A small number of large holders decide outcomes for the entire community
+- **Governance capture:** Insiders accumulate voting power and pass self-serving proposals
+- **Voter apathy:** Most holders do not have the time, expertise, or incentive to evaluate every proposal
+
+NovaDAO takes a fundamentally different approach. Instead of asking token holders to vote, we ask them to **trade**.
+
+---
+
+## How Does It Work?
+
+When a governance proposal is submitted and activated on NovaDAO, the protocol creates two **conditional markets** on the Stellar DEX (SDEX):
+
+1. **Pass Market:** Trades the project token at the price it would be worth if the proposal passes
+2. **Fail Market:** Trades the project token at the price it would be worth if the proposal fails
+
+Traders buy and sell in both markets based on their assessment of how the proposal will affect token value. After a 3-day trading period, the protocol compares the time-weighted average prices (TWAPs) of both markets:
+
+- If the **pass TWAP exceeds the fail TWAP** by the required threshold, the proposal is executed automatically
+- If the **fail TWAP exceeds the pass TWAP**, the proposal is rejected
+
+All trades in the losing market are automatically reversed. Traders who correctly predicted the impact of the proposal keep their gains.
+
+<Tip>
+Decision markets turn governance into a form of informed speculation. Participants who do the best research and have the best judgment are rewarded financially. This is the opposite of voting, where there is no cost to being wrong and no reward for being right.
+</Tip>
+
+---
+
+## Why Is This Better?
+
+Prediction markets -- the broader category that includes decision markets -- have a long track record of outperforming alternative decision-making mechanisms across many domains:
+
+### Election Forecasting
+
+Prediction markets have consistently provided more accurate election forecasts than opinion polls, pundit predictions, and statistical models. When participants have real money at stake, they aggregate information more efficiently than any survey methodology.
+
+### Commodity Price Discovery
+
+Futures markets for commodities like orange juice have historically been more accurate at predicting weather patterns than government meteorological agencies. The reason is that traders in these markets aggregate information from thousands of sources -- weather data, satellite imagery, local reports, historical patterns -- because they profit from being right.
+
+### Corporate Decision-Making
+
+Research in organizational economics has shown that internal prediction markets at companies produce better forecasts of project outcomes, launch timelines, and revenue targets than traditional management hierarchies. People with direct knowledge of the work contribute their insights, weighted by the strength of their conviction.
+
+### The Fundamental Principle
+
+The mechanism behind all of these cases is the same: **markets aggregate distributed information more efficiently than any centralized decision-making process.** When participants have economic incentives to be correct, the collective output converges on the truth faster and more reliably than votes, committees, or expert panels.
+
+---
+
+## Why Does This Matter for Governance?
+
+Decision markets appear to be a fundamental improvement over token voting for on-chain governance. The implications are significant:
+
+### Governance Capture Becomes Economically Irrational
+
+In a voting system, capturing governance costs the price of accumulating a majority of voting tokens. In a decision market, capturing governance requires moving market prices in a direction that the rest of the market recognizes as value-destructive. Every other trader has an incentive to trade against the attacker, making governance capture not just difficult but **financially costly**.
+
+### Bad Proposals Are Self-Defeating
+
+When a bad proposal enters a decision market, traders immediately short the pass market and long the fail market. The TWAP divergence causes the proposal to fail. The attacker loses money. Good proposals, by contrast, attract buying in the pass market because traders recognize the value creation.
+
+### Better Information Leads to Better Decisions
+
+In a voting system, the quality of the decision depends on how many voters actually researched the proposal. In a decision market, the quality of the decision depends on the traders with the best information -- and those traders are automatically weighted more heavily because they place larger bets when they have higher conviction.
+
+<Note>
+Decision markets on NovaDAO run entirely on the Stellar DEX (SDEX). This means the governance mechanism benefits from Stellar's 5-second finality, near-zero transaction fees, and native orderbook-based price discovery. Traders can participate from any Stellar wallet without interacting with external smart contracts or DEX protocols.
+</Note>
+
+---
+
+## How NovaDAO Implements Decision Markets on Stellar
+
+NovaDAO's implementation leverages Stellar's unique infrastructure:
+
+| Component | Implementation |
+|---|---|
+| **Conditional Markets** | Soroban smart contracts create conditional token pairs traded on SDEX |
+| **Price Discovery** | SDEX orderbook provides transparent bid/ask spreads |
+| **TWAP Calculation** | Soroban contracts sample SDEX prices at regular intervals with manipulation resistance |
+| **Trade Reversal** | Automatic settlement through Soroban after TWAP resolution |
+| **Proposal Execution** | Soroban contracts execute approved proposals atomically |
+
+The entire process -- from proposal creation to market evaluation to automatic execution -- operates without human intervention. The protocol is the arbiter.
+
+---
+
+## Getting Started
+
+<CardGroup cols={2}>
+  <Card title="Trading Proposals" icon="chart-line" href="/governance/markets">
+    Learn how to participate in decision markets and trade on governance proposals.
+  </Card>
+  <Card title="Creating Proposals" icon="file-circle-plus" href="/governance/proposals">
+    Understand how to create and activate governance proposals.
+  </Card>
+  <Card title="Finalizing Proposals" icon="clock" href="/governance/twaps">
+    Learn how TWAPs determine proposal outcomes and prevent manipulation.
+  </Card>
+  <Card title="For Investors" icon="shield-halved" href="/benefits/investors">
+    Understand how decision markets protect your investment.
+  </Card>
+</CardGroup>

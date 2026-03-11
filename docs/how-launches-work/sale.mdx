@@ -1,0 +1,176 @@
+---
+title: The ICO
+description: How NovaDAO ICOs work -- the 4-day commitment window, token distribution, and what happens after the sale on Stellar.
+icon: "coins"
+---
+
+# The ICO
+
+The NovaDAO ICO is a 4-day commitment-based token sale conducted in USDC on the Stellar network. Investors commit USDC during the window, and if the sale succeeds, 10 million tokens are distributed proportionally among all participants. If the sale fails to reach its minimum goal, all committed USDC is refunded in full.
+
+---
+
+## How the ICO Works
+
+<Steps>
+  <Step title="Commitment Window Opens">
+    The 4-day commitment period begins. Investors send USDC to the ICO Soroban smart contract on Stellar. Each commitment is recorded onchain with the sender address and amount.
+  </Step>
+  <Step title="Founders Set Discretionary Cap">
+    Founders may set a maximum amount of USDC they will accept. If total commitments exceed this cap, allocations are reduced proportionally and excess USDC is refunded pro rata.
+  </Step>
+  <Step title="Commitment Window Closes">
+    After 4 days, no additional commitments are accepted. The contract calculates total committed USDC and compares it against the minimum raise threshold.
+  </Step>
+  <Step title="Distribution or Refund">
+    If the minimum is met: tokens are distributed and the treasury is funded. If the minimum is not met: all USDC is returned to investors.
+  </Step>
+</Steps>
+
+---
+
+## Why a Discretionary Cap?
+
+Founders have the option to accept only a portion of committed funds. This prevents over-raising while allowing broad participation. The alternatives have significant flaws:
+
+| Mechanism | Problem |
+|---|---|
+| **First-come-first-serve** | Bots and snipers dominate. Legitimate investors miss out. |
+| **Pure pro rata without cap** | Can be gamed through inflated commitments that are withdrawn later. |
+| **Uncapped sale** | Leads to over-subscription and excess capital that dilutes effective governance. |
+
+The discretionary cap lets founders right-size their raise. If a project needs 5M USDC but receives 20M in commitments, the founder can accept 8M and return the rest pro rata. Every participant gets a proportional allocation based on their commitment relative to the accepted total.
+
+<Note>
+The discretionary cap is set by the founding team after commitments are visible. This is a feature, not a bug -- it allows founders to make an informed decision about how much capital they actually need. The cap amount and all refund calculations are executed by the Soroban contract, not manually.
+</Note>
+
+---
+
+## Token Distribution
+
+Every ICO distributes **10 million tokens** to participants. The price per token is determined by the total accepted USDC divided by 10 million.
+
+### Example
+
+| Parameter | Value |
+|---|---|
+| Total committed | 10,000,000 USDC |
+| Discretionary cap (accepted) | 8,000,000 USDC |
+| Tokens distributed | 10,000,000 |
+| Price per token | 0.80 USDC |
+| Refund per participant | 20% of committed amount |
+
+If you committed 10,000 USDC, you would receive:
+- **8,000 USDC** accepted (80% of your commitment)
+- **2,000 USDC** refunded
+- **10,000 tokens** (8,000 / 0.80)
+
+---
+
+## What Happens After a Successful Sale
+
+When the ICO meets its minimum threshold and completes:
+
+### Treasury Funding
+
+All accepted USDC moves to the **governance-controlled treasury** implemented as a Soroban smart contract. The treasury is allocated as follows:
+
+| Allocation | Amount |
+|---|---|
+| **SDEX Liquidity Pools** | 20% of accepted USDC + 2.9M tokens |
+| **Project Treasury** | Minimum goal amount |
+| **Bid Wall** | Remainder (80% x Accepted - Min Goal) |
+
+### Token Minting Authority
+
+The treasury Soroban contract receives **minting authority** for the project token. All future token issuance must go through governance proposals -- there is no back door, no admin key, and no scheduled emissions.
+
+### Team Budget Access
+
+The founding team gains access to the monthly operating budget (capped at 1/6 of the minimum raise). This budget is disbursed automatically without requiring a proposal.
+
+### Bid Wall Activation
+
+If the raise exceeds the minimum goal, the bid wall activates with its USDC allocation. Token holders can sell tokens back at NAV for 90 days. See [The Bid Wall](/how-launches-work/bid-wall) for details.
+
+---
+
+## What Happens When a Sale Fails
+
+If the total committed USDC does not reach the minimum raise threshold:
+
+- **All USDC is refunded** to every participant
+- **No tokens are issued**
+- **No treasury is created**
+- The project can reapply for a future ICO if desired
+
+There are no partial outcomes. The sale either succeeds entirely or fails entirely.
+
+<Warning>
+Refunds are processed automatically by the Soroban contract. You do not need to take any action to receive your USDC back. Refunds settle on Stellar in approximately 5 seconds.
+</Warning>
+
+---
+
+## Performance Package
+
+Founders may pre-allocate up to **12.9 million tokens** as a performance package. This represents up to approximately 50% of the total potential supply (25.8M = 10M ICO + 2.9M LP + 12.9M performance).
+
+The performance package is distributed across **5 equal tranches** that unlock at progressive price milestones:
+
+| Tranche | Unlock Condition | Tokens |
+|---|---|---|
+| 1 | Token price reaches 2x ICO price | 2,580,000 |
+| 2 | Token price reaches 4x ICO price | 2,580,000 |
+| 3 | Token price reaches 8x ICO price | 2,580,000 |
+| 4 | Token price reaches 16x ICO price | 2,580,000 |
+| 5 | Token price reaches 32x ICO price | 2,580,000 |
+
+### Unlock Requirements
+
+- **Minimum 18-month lockup** from the ICO date before any tranche can unlock
+- **3-month TWAP verification** to confirm the price level is sustained, not a temporary spike
+- Price is measured against the SDEX TWAP, not a spot price
+
+### Example
+
+If the ICO price is 0.80 USDC per token:
+
+- Tranche 1 unlocks when the 3-month TWAP reaches 1.60 USDC (after at least 18 months)
+- Tranche 2 unlocks when the 3-month TWAP reaches 3.20 USDC
+- And so on up to 25.60 USDC for Tranche 5
+
+<Tip>
+The performance package is optional. Founders who do not want a team allocation can skip it entirely. Investors should check whether a performance package is configured when evaluating an ICO -- the information is publicly visible in the Soroban contract parameters.
+</Tip>
+
+---
+
+## Key Parameters
+
+| Parameter | Value |
+|---|---|
+| Commitment window | 4 days |
+| ICO token distribution | 10,000,000 tokens |
+| Liquidity pool USDC allocation | 20% of accepted raise |
+| Liquidity pool token allocation | 2,900,000 tokens |
+| Maximum performance package | 12,900,000 tokens |
+| Performance tranches | 5 (at 2x, 4x, 8x, 16x, 32x) |
+| Minimum lockup | 18 months |
+| TWAP verification | 3 months |
+| Settlement | Stellar (5-second finality) |
+| Currency | USDC on Stellar |
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="The Bid Wall" icon="shield" href="/how-launches-work/bid-wall">
+    Learn how the bid wall creates a price floor after the ICO.
+  </Card>
+  <Card title="Getting Listed" icon="rocket" href="/how-launches-work/create">
+    Start the listing process to launch your project on NovaDAO.
+  </Card>
+</CardGroup>

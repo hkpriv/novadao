@@ -1,0 +1,180 @@
+---
+title: Bid Wall (NAV Protection)
+description: How the NovaDAO bid wall creates a price floor by letting token holders sell back at Net Asset Value on Stellar.
+icon: "shield"
+---
+
+# Bid Wall (NAV Protection)
+
+The bid wall is a Soroban smart contract on Stellar that provides a price floor for newly launched tokens. It allows token holders to sell their tokens back to the protocol at **Net Asset Value (NAV)**, with the sold tokens being **permanently burned**. This mechanism protects investors against extreme downside in the critical post-ICO period.
+
+---
+
+## How It Works
+
+After a successful ICO, a portion of the raised USDC is allocated to the bid wall contract. This USDC reserve stands as a perpetual buy order at the current NAV price. Any token holder can sell their tokens into the bid wall at any time during the 90-day active period.
+
+When a token holder sells to the bid wall:
+
+1. The holder sends their project tokens to the bid wall contract
+2. The contract calculates the current NAV per token
+3. The holder receives USDC equal to (tokens sold x NAV per token) minus fees
+4. The sold tokens are **permanently burned**, reducing circulating supply
+5. The NAV per remaining token adjusts accordingly
+
+<Note>
+The bid wall is not a speculative mechanism -- it is a safety net. Its purpose is to ensure that token holders always have a way to exit at a price that reflects the actual economic value backing each token. This is especially important during the first 90 days after an ICO, when the market is still discovering the long-term price.
+</Note>
+
+---
+
+## How the Bid Wall Is Funded
+
+The bid wall is funded from the ICO proceeds. The allocation formula is:
+
+```
+Bid Wall = 80% x Total Raised - Minimum Goal
+```
+
+Here is a concrete example. Suppose a project sets a minimum raise of $6M and the ICO raises $8M total:
+
+| Allocation | Formula | Amount |
+|---|---|---|
+| **Liquidity Pools** | 20% of total raised | $1,600,000 |
+| **Project Treasury** | Minimum goal amount | $6,000,000 |
+| **Bid Wall** | Remainder (80% x $8M - $6M) | $400,000 |
+
+<Tabs>
+  <Tab title="Small Raise Example">
+    **Minimum goal:** $2M | **Total raised:** $2.5M
+
+    | Allocation | Amount |
+    |---|---|
+    | Liquidity Pools (20%) | $500,000 |
+    | Project Treasury | $2,000,000 |
+    | Bid Wall | $0 |
+
+    When the raise barely exceeds the minimum, the bid wall may receive little or no funding. The treasury and liquidity pools take priority.
+  </Tab>
+  <Tab title="Medium Raise Example">
+    **Minimum goal:** $4M | **Total raised:** $8M
+
+    | Allocation | Amount |
+    |---|---|
+    | Liquidity Pools (20%) | $1,600,000 |
+    | Project Treasury | $4,000,000 |
+    | Bid Wall | $2,400,000 |
+
+    A raise that significantly exceeds the minimum creates a substantial bid wall, providing strong NAV protection.
+  </Tab>
+  <Tab title="Large Raise Example">
+    **Minimum goal:** $5M | **Total raised:** $15M
+
+    | Allocation | Amount |
+    |---|---|
+    | Liquidity Pools (20%) | $3,000,000 |
+    | Project Treasury | $5,000,000 |
+    | Bid Wall | $7,000,000 |
+
+    When the raise is much larger than the minimum, the bid wall becomes the dominant allocation, providing a very strong price floor.
+  </Tab>
+</Tabs>
+
+---
+
+## NAV Calculation
+
+The Net Asset Value per token is calculated dynamically based on the total economic value backing the token supply:
+
+```
+NAV per token = (Treasury Balance + LP Quote Value + Bid Wall Balance) / (Tokens at Launch - Tokens Burned by Bid Wall)
+```
+
+### Key Properties of NAV
+
+**NAV is dynamic.** It changes as the treasury spends USDC, as liquidity pool positions fluctuate, and as tokens are burned through the bid wall.
+
+**NAV decreases as the treasury spends.** This is expected and intentional. The treasury exists to fund the project's operations. As USDC leaves the treasury for legitimate business purposes, the NAV per token decreases to reflect the reduced backing. This creates a natural incentive for the team to demonstrate value creation that exceeds treasury spending.
+
+**NAV increases as tokens are burned.** When someone sells to the bid wall, their tokens are permanently destroyed. The remaining USDC in the bid wall is now divided among fewer tokens, which can increase the NAV for remaining holders.
+
+**External token burns increase NAV.** If tokens are burned through any mechanism outside the bid wall (for example, a governance-approved burn proposal), the NAV per remaining token increases. This makes bid wall sales less profitable relative to holding, which is an anti-gaming feature.
+
+<Tip>
+The NAV is a floor, not a target. In a healthy project, the market price should trade significantly above NAV because the market values the project's future potential, not just its current treasury balance. If the market price approaches NAV, it signals that the market does not believe the project will create value beyond its treasury reserves.
+</Tip>
+
+---
+
+## Fees
+
+A **1% fee** is charged on every bid wall sale. This fee is sent to the NovaDAO protocol treasury and serves two purposes:
+
+1. It funds NovaDAO's ongoing operations and development
+2. It creates a small friction cost that discourages trivial or strategic bid wall usage
+
+The net proceeds to the seller are: `(Tokens x NAV) x 0.99`
+
+---
+
+## How to Use the Bid Wall
+
+<Steps>
+  <Step title="Connect Your Wallet">
+    Connect your Stellar wallet (Freighter, Lobstr, or any SEP-compliant wallet) to the NovaDAO application.
+  </Step>
+  <Step title="Navigate to the Bid Wall">
+    Select the project whose tokens you want to sell and navigate to the bid wall interface. You will see the current NAV per token and the total USDC available in the bid wall.
+  </Step>
+  <Step title="Enter Your Amount">
+    Specify how many tokens you want to sell. The interface will display the USDC you will receive after the 1% fee.
+  </Step>
+  <Step title="Execute the Sale">
+    Confirm the transaction in your wallet. The Soroban contract processes the sale atomically on Stellar -- your tokens are burned and your USDC is delivered in a single transaction with 5-second finality.
+  </Step>
+  <Step title="Verify Onchain">
+    All bid wall transactions are recorded on the Stellar ledger. You can verify your sale through Stellar Expert, StellarChain, or the Horizon API.
+  </Step>
+</Steps>
+
+---
+
+## Key Constraints
+
+| Parameter | Value |
+|---|---|
+| **Bid wall duration** | 90 days from ICO completion |
+| **Fee per sale** | 1% to NovaDAO protocol |
+| **Token handling** | Permanent burn (reduces circulating supply) |
+| **Funding formula** | 80% x Total Raised - Minimum Goal |
+| **NAV calculation** | Dynamic, based on treasury + LP + bid wall balances |
+| **Post-expiration** | Remaining USDC returns to governance-controlled treasury |
+
+<Warning>
+The bid wall expires after 90 days. After expiration, any remaining USDC in the bid wall contract is transferred to the project's governance-controlled treasury. There is no extension. If you want to sell at NAV, you must do so within the 90-day window.
+</Warning>
+
+---
+
+## Why This Design?
+
+The bid wall creates a self-correcting system:
+
+- **If the project creates value:** The market price trades above NAV. Nobody uses the bid wall. The USDC eventually returns to the treasury for productive use.
+- **If the project struggles:** Token holders can exit at NAV rather than suffering unlimited downside. The bid wall absorbs selling pressure while reducing token supply through burns.
+- **If someone tries to game it:** External burns increase NAV, making bid wall sales less attractive. The 1% fee discourages arbitrage. The 90-day expiration prevents indefinite value extraction.
+
+This is investor protection through mechanism design, not through promises.
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="The ICO" icon="rocket" href="/how-launches-work/sale">
+    Understand the full ICO process that generates the funds allocated to the bid wall.
+  </Card>
+  <Card title="For Investors" icon="shield-halved" href="/benefits/investors">
+    See the complete investor protection framework, including both mechanistic and legal safeguards.
+  </Card>
+</CardGroup>

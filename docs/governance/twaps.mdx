@@ -1,0 +1,143 @@
+---
+title: Finalizing Proposals (TWAPs)
+description: How time-weighted average prices determine governance outcomes on NovaDAO and prevent market manipulation.
+icon: "clock"
+---
+
+# Finalizing Proposals (TWAPs)
+
+Once a governance proposal completes its 3-day trading period on the Stellar DEX, the outcome is determined by comparing **Time-Weighted Average Prices (TWAPs)** from the pass and fail conditional markets. TWAPs are used instead of spot prices to prevent last-minute manipulation and ensure that proposal outcomes reflect sustained market sentiment.
+
+---
+
+## TWAPs Decide Whether Proposals Pass or Fail
+
+A single spot price at the end of a trading period would be trivially manipulable. A well-capitalized actor could place a large order in the final seconds to swing the outcome. TWAPs prevent this by measuring the average price over the entire recording period, weighted by time.
+
+Here is the logic:
+
+- The Soroban smart contract samples the SDEX orderbook prices at regular intervals throughout the TWAP recording period
+- Each sample contributes equally to the final average
+- The **pass TWAP** and **fail TWAP** are calculated independently
+- The proposal outcome depends on the comparison between these two averages
+
+| Outcome | Condition |
+|---|---|
+| **Proposal passes** | Pass TWAP exceeds Fail TWAP by the required threshold |
+| **Proposal fails** | Fail TWAP exceeds Pass TWAP, or the threshold is not met |
+
+Execution is automatic. When the TWAP calculation completes, the Soroban contract either executes the proposal's specified action or rejects it. No human intervention, no multisig approval, no governance council.
+
+---
+
+## TWAPs Are Lagged to Mitigate Manipulation
+
+NovaDAO uses **lagged price observations** to further strengthen manipulation resistance. Instead of recording the instantaneous SDEX price at each sample point, the protocol limits how much the recorded price can change between consecutive observations.
+
+### How Lagging Works
+
+Each TWAP observation is capped in how far it can move from the previous observation. For example, if the maximum allowed movement is $0.05 per observation cycle:
+
+- If the actual SDEX price moved from $1.00 to $1.50 between two observations, the recorded TWAP observation would only move from $1.00 to $1.05
+- Over subsequent observation cycles, the recorded price gradually catches up to the actual market price
+- A sudden price spike caused by a large manipulation order has a limited effect on the TWAP
+
+This mechanism makes manipulation exponentially expensive. To move the TWAP by a meaningful amount, an attacker would need to sustain artificial price levels across many observation cycles -- which means holding large positions at unfavorable prices for extended periods, bleeding capital to arbitrageurs the entire time.
+
+<Note>
+The lagging mechanism is implemented in the Soroban smart contract and operates deterministically. The cap parameters are set at the protocol level and apply uniformly to all proposals. There is no discretionary adjustment.
+</Note>
+
+---
+
+## 24-Hour Grace Period Before TWAP Recording
+
+When a proposal is activated and conditional markets open, the TWAP recording does **not** begin immediately. There is a **24-hour delay** before price observations start contributing to the final TWAP.
+
+### Why the Delay?
+
+The grace period serves two critical functions:
+
+1. **Research Time:** Traders need time to evaluate the proposal, research its implications, and form their views. If TWAP recording started immediately, the first hours of trading -- dominated by uninformed reactions -- would disproportionately influence the outcome.
+
+2. **Liquidity Formation:** Conditional markets need time to attract liquidity. The initial hours after a proposal activates tend to have thin orderbooks and wide spreads. Price observations during this period would be noisy and unreliable.
+
+After the 24-hour grace period, TWAP recording begins and continues for the remaining duration of the trading period.
+
+<Tip>
+The 24-hour delay means that as a trader, you have time to study the proposal before your trades start influencing the outcome. Use this window to read the proposal description, assess the team's track record, consult with other community members, and form a well-reasoned view.
+</Tip>
+
+---
+
+## Pass Thresholds
+
+Not all proposals are held to the same standard. NovaDAO uses differentiated pass thresholds depending on the proposal's origin:
+
+### Team-Sponsored Proposals: -3% Threshold
+
+For proposals submitted by the project's designated team, the pass TWAP only needs to be within 3% of the fail TWAP for the proposal to pass. In other words, the pass TWAP can be slightly lower than the fail TWAP and the proposal still executes.
+
+**Rationale:** Teams have operational knowledge that the broader market may not fully appreciate. A modest advantage reflects the Bayesian prior that team-sponsored proposals are more likely to be operationally sound. The market can still override if the proposal is clearly value-destructive.
+
+### Non-Team-Sponsored Proposals: +3% Threshold
+
+For proposals submitted by anyone other than the designated team, the pass TWAP must exceed the fail TWAP by at least 3%. This higher bar reflects the additional uncertainty associated with external proposals.
+
+**Rationale:** External proposals carry more risk. The proposer may not have full context on the project's operations, finances, or strategy. Requiring stronger market conviction before execution provides a conservative safety margin.
+
+| Sponsor | Threshold | What It Means |
+|---|---|---|
+| **Team** | -3% | Pass TWAP can be up to 3% below Fail TWAP and still pass |
+| **Non-team** | +3% | Pass TWAP must be at least 3% above Fail TWAP to pass |
+
+<Warning>
+These thresholds are configurable through governance. They represent the initial default parameters. A governance proposal can modify these thresholds for any project -- which itself would go through the decision market process.
+</Warning>
+
+---
+
+## Complete Timeline
+
+Here is the full lifecycle from proposal activation to resolution:
+
+| Phase | Duration | What Happens |
+|---|---|---|
+| **Activation** | Instant | Proposal reaches 200K NOVA staking threshold; conditional markets open on SDEX |
+| **Grace Period** | 24 hours | Traders research and form positions; TWAP not yet recording |
+| **TWAP Recording** | ~2 days | Price observations sampled at regular intervals with lagging caps |
+| **Resolution** | Instant | Pass and Fail TWAPs compared; proposal auto-executes or auto-rejects |
+| **Settlement** | 5 seconds | Winning market trades settle; losing market trades reverse on Stellar |
+
+Total elapsed time from activation to resolution: **3 days**.
+
+---
+
+## Technical Implementation on Stellar
+
+NovaDAO's TWAP mechanism is implemented entirely in Soroban smart contracts, leveraging Stellar's infrastructure:
+
+### Price Sampling
+
+The Soroban contract queries SDEX orderbook state at each observation interval. Because Stellar operates on a 5-second ledger close time, price observations can be taken at high frequency without the gas cost concerns that limit observation frequency on other chains.
+
+### Deterministic Execution
+
+Soroban contracts execute deterministically based on ledger state. The TWAP calculation, threshold comparison, and proposal execution all occur atomically within a single transaction. There is no race condition or timing vulnerability between the TWAP calculation and the execution.
+
+### Verifiability
+
+Every price observation, TWAP calculation, and resolution outcome is recorded onchain. Any participant can independently verify the full computation by querying the Soroban contract state through the Soroban RPC or reconstructing the TWAP from SDEX trade history via the Horizon API.
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Trading Proposals" icon="chart-line" href="/governance/markets">
+    Learn how to trade in conditional markets during the evaluation period.
+  </Card>
+  <Card title="Creating Proposals" icon="file-circle-plus" href="/governance/proposals">
+    Understand how to create proposals and reach the activation threshold.
+  </Card>
+</CardGroup>

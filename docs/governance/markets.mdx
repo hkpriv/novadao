@@ -1,0 +1,137 @@
+---
+title: Trading Proposals
+description: How to participate in NovaDAO decision markets by trading governance proposals on the Stellar DEX.
+icon: "chart-line"
+---
+
+# Trading Proposals
+
+When a governance proposal is activated on NovaDAO, conditional markets open on the Stellar DEX (SDEX). These markets let traders express their view on whether a proposal will increase or decrease token value -- and profit from being right.
+
+This page explains how conditional markets work and how to trade them effectively.
+
+---
+
+## How Conditional Markets Form
+
+When a proposal reaches the required staking threshold (200,000 NOVA tokens), the protocol splits trading liquidity into two conditional markets:
+
+1. **Pass Market (TOKEN/USDC-Pass):** Trades the token at the price it would reach if the proposal is approved
+2. **Fail Market (TOKEN/USDC-Fail):** Trades the token at the price it would reach if the proposal is rejected
+
+Half of the liquidity from the project's standard SDEX trading pair migrates into these conditional markets. Both markets operate simultaneously for a **3-day trading window**.
+
+<Note>
+After the 3-day period ends, all trades in the losing market are automatically reversed. If the proposal passes, trades in the fail market unwind. If the proposal fails, trades in the pass market unwind. This means participating in conditional markets carries directional risk but not settlement risk -- you will always get your assets back from the losing side.
+</Note>
+
+---
+
+## Example: Participating in a Conditional Market
+
+Suppose a project called **Orion Protocol** has a live proposal to reduce token emissions by 50%. You believe this will increase the token's value because reduced supply pressure is bullish.
+
+Here is how you would trade:
+
+<Steps>
+  <Step title="Navigate to the Proposal">
+    Open the NovaDAO app and find the active proposal for Orion Protocol. You will see both the pass market and the fail market with their current prices.
+  </Step>
+  <Step title="Assess the Markets">
+    The pass market shows ORION at 0.85 USDC. The fail market shows ORION at 0.72 USDC. This means the market currently expects the proposal to increase token value.
+  </Step>
+  <Step title="Place Your Trade">
+    Since you believe the proposal is good, you buy ORION in the pass market at 0.85 USDC. If the proposal passes and ORION trades above 0.85, you profit. Your trade in the pass market also contributes to the TWAP that determines the outcome.
+  </Step>
+  <Step title="Resolution">
+    After 3 days, the TWAPs are calculated. If the pass TWAP exceeds the fail TWAP by the required threshold, the proposal executes. Your pass market position settles normally. The fail market trades reverse automatically.
+  </Step>
+</Steps>
+
+---
+
+## Trading Strategies for Decision Markets
+
+### Case 1: You Think the Proposal Is Bad
+
+If you believe a proposal will decrease token value, you have two complementary strategies:
+
+**Strategy A -- Short the Pass Market:**
+Sell the token in the pass market. If you are right and the proposal fails, your sell trades reverse and you get your tokens back. If you are right but the proposal somehow passes anyway, you sold at a higher price than the token will trade at post-execution.
+
+**Strategy B -- Buy in the Fail Market:**
+Buy the token in the fail market at a discount. If the proposal fails, your purchase settles and you own tokens bought below market value. If the proposal passes, your fail market trades reverse and you get your USDC back.
+
+**Combined approach:** Execute both simultaneously. This hedges your position while expressing a directional view.
+
+### Case 2: You Think the Proposal Is Good
+
+**Strategy A -- Buy in the Pass Market:**
+Buy the token in the pass market. If the proposal passes and the token appreciates, you bought at the pre-appreciation price. If the proposal fails, your trades reverse.
+
+**Strategy B -- Sell in the Fail Market:**
+Sell the token in the fail market if you believe the fail price is too high. This is an advanced strategy that requires a strong view on both the proposal outcome and the relative pricing between markets.
+
+### Case 3: You See Mispricing
+
+Sometimes the pass and fail markets will have prices that do not reflect the actual expected impact of a proposal. This creates an arbitrage opportunity:
+
+- If the pass market is underpriced relative to your estimate, buy in the pass market
+- If the fail market is overpriced relative to your estimate, sell in the fail market
+- The 3-day trading period gives the market time to converge on fair value
+
+<Tip>
+The best decision market traders are the ones who do the most thorough research on proposals. Read the proposal details, evaluate the expected impact on the project, assess the team's track record, and size your positions according to your conviction level. Decision markets reward homework.
+</Tip>
+
+---
+
+## Key Mechanics
+
+| Mechanism | Detail |
+|---|---|
+| **Liquidity Source** | 50% of the standard trading pair's liquidity migrates to conditional markets |
+| **Trading Period** | 3 days from proposal activation |
+| **Settlement** | Automatic -- winning market settles normally, losing market trades reverse |
+| **Price Discovery** | SDEX orderbook with standard limit and market orders |
+| **TWAP Recording** | Begins after a 24-hour grace period (see [Finalizing Proposals](/governance/twaps)) |
+| **Fees** | 0.25% trade fee on all conditional market transactions |
+
+---
+
+## Trading on Stellar's SDEX
+
+NovaDAO's conditional markets operate natively on the Stellar DEX. This provides several advantages for traders:
+
+### Transparent Orderbook
+
+Unlike AMM-based systems where pricing is determined by a bonding curve, SDEX uses a traditional orderbook. You can see the full depth of bids and asks on both sides of the market. This transparency makes it easier to assess market sentiment and place informed orders.
+
+### No Slippage Surprises
+
+With an orderbook model, you know your execution price before you submit the order. Limit orders execute at your specified price or better. There is no impermanent loss and no bonding curve slippage.
+
+### Minimal Fees
+
+Stellar's near-zero transaction fees mean that trading in decision markets does not require a large position size to be economical. You can participate with small amounts and still have meaningful impact on the TWAP.
+
+### Cross-Asset Accessibility
+
+Because SDEX supports all Stellar assets natively, you can fund your trades from any Stellar asset through automatic path payments. You do not need to pre-convert everything to USDC before participating.
+
+<Warning>
+Conditional market trading carries real financial risk. If you buy in the pass market and the proposal passes but the token price drops below your entry, you will hold a depreciated position. Decision markets reverse losing-side trades, but they do not protect against mispricing on the winning side. Trade with conviction, but manage your risk.
+</Warning>
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Creating Proposals" icon="file-circle-plus" href="/governance/proposals">
+    Learn how to create and activate governance proposals that trigger conditional markets.
+  </Card>
+  <Card title="Finalizing Proposals" icon="clock" href="/governance/twaps">
+    Understand how TWAPs determine outcomes and how manipulation is prevented.
+  </Card>
+</CardGroup>

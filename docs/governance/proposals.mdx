@@ -1,0 +1,151 @@
+---
+title: Creating Proposals
+description: How to create governance proposals on NovaDAO, including activation requirements and staking mechanics.
+icon: "file-circle-plus"
+---
+
+# Creating Proposals
+
+Anyone holding project tokens can create a governance proposal on NovaDAO. Proposals are the mechanism through which token holders direct treasury spending, control token supply, and manage project parameters. Every proposal is public, onchain, and evaluated through decision markets on the Stellar DEX.
+
+---
+
+## What Proposals Can Do
+
+NovaDAO governance proposals can perform four types of actions:
+
+<CardGroup cols={2}>
+  <Card title="Spend USDC from Treasury" icon="money-bill-transfer">
+    Direct the governance-controlled treasury to send USDC to a specified Stellar address. This covers everything from team budgets to ecosystem grants to strategic investments.
+  </Card>
+  <Card title="Issue New Tokens" icon="coins">
+    Mint additional project tokens and send them to a specified recipient. All supply expansion goes through this mechanism -- there is no backdoor minting.
+  </Card>
+  <Card title="Update Token Metadata" icon="pen-to-square">
+    Modify the token's onchain metadata, including display name, description, and associated links. This allows the project to evolve its branding through governance.
+  </Card>
+  <Card title="Adjust Liquidity" icon="water">
+    Increase or decrease the USDC and token amounts provided by the treasury to SDEX liquidity pools. This controls the project's market depth and trading conditions.
+  </Card>
+</CardGroup>
+
+---
+
+## Activation Requirements
+
+Creating a proposal is permissionless -- anyone can submit one. However, for a proposal to activate and trigger conditional markets, it must reach a staking threshold:
+
+| Parameter | Value |
+|---|---|
+| **Default staking threshold** | 200,000 NOVA tokens (2% of initial 10M supply) |
+| **Maximum active proposals** | 1 at a time per project |
+| **Staker lockup period** | None |
+| **Slashing risk** | None |
+
+### Why a Staking Threshold?
+
+The staking requirement serves as a **spam prevention mechanism**. Without it, anyone could flood the system with frivolous proposals, forcing the community to evaluate noise rather than signal.
+
+Importantly, staking on NovaDAO carries **zero financial risk**:
+
+- **No lockup:** You can unstake your tokens at any time, even while the proposal is active
+- **No slashing:** Your tokens are never at risk of being confiscated or reduced
+- **No opportunity cost beyond liquidity:** Your tokens are not earning yield elsewhere during the staking period, but they are not losing value either
+
+Staking is purely a signal of seriousness. It says: "I believe this proposal is worth the community's attention, and I am willing to put my tokens behind that belief."
+
+<Note>
+Only one proposal can be active at a time for each project. This is a deliberate design choice. It forces the community to prioritize and ensures that each proposal receives the full attention of the decision market. If multiple proposals compete for attention simultaneously, the quality of market evaluation degrades.
+</Note>
+
+---
+
+## The Proposal Lifecycle
+
+<Steps>
+  <Step title="Creation">
+    A token holder submits a proposal through the NovaDAO interface. The proposal specifies:
+    - The action type (spend, mint, update metadata, or adjust liquidity)
+    - The specific parameters (amount, recipient address, metadata changes)
+    - A description explaining the rationale
+
+    The proposal is immediately visible onchain through the Soroban smart contract.
+  </Step>
+  <Step title="Staking">
+    Token holders who support the proposal stake their tokens toward the activation threshold. Once 200,000 tokens are staked, the proposal becomes active and conditional markets open.
+
+    Multiple stakeholders can contribute to the threshold. A single large holder can activate a proposal alone, or many smaller holders can pool their stakes.
+  </Step>
+  <Step title="Market Evaluation">
+    Once activated, conditional markets open on the Stellar DEX for 3 days. Traders evaluate whether the proposal will increase or decrease token value by trading in the pass and fail markets. See [Trading Proposals](/governance/markets) for details.
+  </Step>
+  <Step title="Resolution">
+    After the trading period, TWAPs are calculated. If the pass TWAP exceeds the fail TWAP by the required threshold, the proposal executes automatically via the Soroban smart contract. If not, it is rejected. See [Finalizing Proposals](/governance/twaps) for the TWAP mechanics.
+  </Step>
+</Steps>
+
+---
+
+## Proposal Parameters
+
+### Pass Thresholds
+
+Not all proposals are evaluated with the same bar. NovaDAO uses differentiated thresholds depending on who sponsors the proposal:
+
+| Sponsor Type | Pass Threshold | Rationale |
+|---|---|---|
+| **Team-sponsored** | Pass TWAP must exceed Fail TWAP by at least -3% | Team proposals have a slight advantage because the team has the best operational knowledge of what the project needs |
+| **Non-team-sponsored** | Pass TWAP must exceed Fail TWAP by at least +3% | External proposals require stronger market conviction to pass, providing conservative protection against hostile or poorly conceived proposals |
+
+<Tip>
+The -3% threshold for team-sponsored proposals means the pass TWAP can be up to 3% lower than the fail TWAP and the proposal still passes. This is not a loophole -- it reflects the Bayesian prior that teams generally propose actions that are operationally sound. The +3% threshold for external proposals reflects the higher uncertainty when an outsider proposes changes.
+</Tip>
+
+### Budget Constraints
+
+Teams operate within defined budget limits to prevent excessive spending between governance cycles:
+
+- **Monthly operating budget:** Capped at 1/6 of the minimum raise amount
+- **Budget access:** Automatic, does not require a proposal
+- **Above-budget expenditures:** Require a governance proposal and market evaluation
+
+This structure gives teams the operational flexibility to run day-to-day operations while ensuring that large capital decisions go through community oversight.
+
+---
+
+## Best Practices for Proposal Authors
+
+### Write Clear Descriptions
+
+Your proposal will be evaluated by traders who may or may not be deeply familiar with your project. A clear, detailed description increases the likelihood that the market accurately assesses your proposal's impact.
+
+Include:
+- **What** you are proposing (specific action and parameters)
+- **Why** this action will increase token value
+- **Expected timeline** for the impact to materialize
+- **Risks** if the proposal passes and things go wrong
+
+### Engage the Community Before Submission
+
+While anyone can submit a proposal, proposals that come as a surprise tend to perform poorly in decision markets. Traders need time to research and form opinions. Discussing your proposal in the project's Telegram channel or public forums before submitting it onchain gives the market time to prepare and produces better evaluation.
+
+### Size Your Requests Appropriately
+
+Requesting too much capital in a single proposal creates uncertainty in the market. If you need a large amount, consider breaking it into smaller, sequential proposals where each one funds a specific milestone. This reduces risk for token holders and builds trust incrementally.
+
+<Warning>
+Do not attempt to game the proposal system by submitting proposals that obscure their true intent or use misleading descriptions. Decision markets are efficient information aggregators -- if your proposal is deceptive, sophisticated traders will identify it and trade against it. Deceptive proposals fail and damage the proposer's reputation.
+</Warning>
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Trading Proposals" icon="chart-line" href="/governance/markets">
+    Learn how to trade in conditional markets once a proposal is active.
+  </Card>
+  <Card title="Finalizing Proposals" icon="clock" href="/governance/twaps">
+    Understand how TWAPs are calculated and how proposals are resolved.
+  </Card>
+</CardGroup>

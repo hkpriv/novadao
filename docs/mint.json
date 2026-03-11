@@ -1,0 +1,119 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "NovaDAO",
+  "logo": {
+    "dark": "/logo/nova-dark.svg",
+    "light": "/logo/nova-light.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#0F62FE",
+    "light": "#4589FF",
+    "dark": "#050D1A",
+    "anchors": {
+      "from": "#0F62FE",
+      "to": "#4589FF"
+    },
+    "background": {
+      "dark": "#050D1A",
+      "light": "#FFFFFF"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "Launch App",
+      "url": "https://app.novadao.xyz"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Get Started",
+    "url": "https://app.novadao.xyz/launch"
+  },
+  "tabs": [
+    {
+      "name": "API Reference",
+      "url": "https://api.novadao.xyz/docs"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "Community",
+      "icon": "telegram",
+      "url": "https://t.me/novadao"
+    },
+    {
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/novadao"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": ["index"]
+    },
+    {
+      "group": "Benefits",
+      "pages": [
+        "benefits/founders",
+        "benefits/investors"
+      ]
+    },
+    {
+      "group": "Governance",
+      "pages": [
+        "governance/overview",
+        "governance/markets",
+        "governance/proposals",
+        "governance/twaps"
+      ]
+    },
+    {
+      "group": "How Launches Work",
+      "pages": [
+        "how-launches-work/are-you-ready",
+        "how-launches-work/bid-wall",
+        "how-launches-work/create",
+        "how-launches-work/sale",
+        "how-launches-work/stamp"
+      ]
+    },
+    {
+      "group": "Token",
+      "pages": [
+        "token/details",
+        "token/mechanics"
+      ]
+    },
+    {
+      "group": "Protocol",
+      "pages": [
+        "protocol/analytics"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "x": "https://x.com/novadao_xyz",
+    "telegram": "https://t.me/novadao",
+    "github": "https://github.com/novadao"
+  },
+  "backgroundImage": "/images/background.png",
+  "modeToggle": {
+    "default": "dark"
+  },
+  "feedback": {
+    "thumbsRating": true,
+    "suggestEdit": true
+  },
+  "analytics": {
+    "posthog": {
+      "apiKey": ""
+    }
+  },
+  "seo": {
+    "indexHiddenPages": false
+  },
+  "api": {
+    "baseUrl": "https://api.novadao.xyz"
+  }
+}
