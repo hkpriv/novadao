@@ -5,7 +5,7 @@ import { useStore } from './store.tsx'
 
 // Admin addresses — add your Stellar public key here to grant admin access
 const ADMIN_ADDRESSES = [
-  'GADMIN', // placeholder — replace with real admin address
+  'GBSD4YJPKUH6DO5G5ZMDOZAC5Y3J4D7WFVNXBJYOATIEAZA5YRBJVV6U',
 ]
 
 const inputStyle: React.CSSProperties = {
