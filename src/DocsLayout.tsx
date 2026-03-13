@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 
 const nav = [
@@ -30,11 +31,20 @@ const nav = [
 
 export default function DocsLayout() {
   const { pathname } = useLocation()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)' }}>
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div onClick={() => setSidebarOpen(false)} style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+          zIndex: 40, display: 'none',
+        }} className="docs-sidebar-overlay" />
+      )}
+
       {/* Sidebar */}
-      <aside style={{
+      <aside className={`docs-sidebar${sidebarOpen ? ' open' : ''}`} style={{
         width: 260, flexShrink: 0, padding: '24px 16px',
         borderRight: '1px solid var(--border-color)',
         background: 'var(--bg-secondary)', overflowY: 'auto',
@@ -61,7 +71,7 @@ export default function DocsLayout() {
             {group.items.map(item => {
               const active = pathname === item.path
               return (
-                <Link key={item.path} to={item.path} style={{
+                <Link key={item.path} to={item.path} onClick={() => setSidebarOpen(false)} style={{
                   display: 'block', padding: '8px 12px', borderRadius: 6,
                   fontSize: 14, textDecoration: 'none',
                   color: active ? 'var(--accent-light)' : 'var(--text-secondary)',
@@ -83,6 +93,25 @@ export default function DocsLayout() {
       }}>
         <Outlet />
       </main>
+
+      {/* Mobile toggle */}
+      <button className="docs-mobile-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}
+        aria-label="Toggle docs menu">
+        {sidebarOpen ? '\u2715' : '\u2630'}
+      </button>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .docs-sidebar {
+            position: fixed !important; left: -280px; top: 0; z-index: 50;
+            height: 100vh !important; transition: left 0.3s ease;
+            box-shadow: none;
+          }
+          .docs-sidebar.open { left: 0; box-shadow: 4px 0 20px rgba(0,0,0,0.3); }
+          .docs-sidebar-overlay { display: block !important; }
+          .docs-content { padding: 24px 16px !important; }
+        }
+      `}</style>
     </div>
   )
 }

@@ -125,6 +125,36 @@ a:hover { color: var(--accent); }
 ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
+/* ===== FADE-IN ANIMATION ===== */
+.fade-in {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.modal-content {
+  background: var(--bg-card); border: 1px solid var(--border-color);
+  border-radius: 16px; padding: 32px; width: 100%; max-width: 420px;
+}
+
+/* ===== MOBILE DOCS ===== */
+.docs-mobile-toggle {
+  display: none; position: fixed; bottom: 20px; right: 20px; z-index: 50;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--accent); color: white; border: none; cursor: pointer;
+  font-size: 20px; box-shadow: 0 4px 20px var(--accent-glow);
+}
+@media (max-width: 768px) {
+  .docs-mobile-toggle { display: flex; align-items: center; justify-content: center; }
+}
+
 /* ===== DOCS CONTENT ===== */
 .docs-content h1 { font-size: 36px; font-weight: 700; color: var(--text-primary); margin: 0 0 16px; line-height: 1.2; }
 .docs-content h2 { font-size: 24px; font-weight: 600; color: var(--text-primary); margin: 40px 0 16px; padding-top: 24px; border-top: 1px solid var(--border-color); }

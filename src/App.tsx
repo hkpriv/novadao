@@ -1,10 +1,28 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { StellarWalletsKit } from '@creit-tech/stellar-wallets-kit/sdk'
 import { defaultModules } from '@creit-tech/stellar-wallets-kit/modules/utils'
 import './App.css'
 
 // Initialize Stellar Wallets Kit
 StellarWalletsKit.init({ modules: defaultModules() })
+
+/* ============================================================
+   Simulated user data (wallet-connected experience)
+   ============================================================ */
+const SIMULATED_BALANCE = '1,250 XLM'
+const SIMULATED_POSITIONS: Record<string, { tokens: number; value: string }> = {
+  StellarPay: { tokens: 7520, value: '$6,196' },
+  LumenSwap: { tokens: 3100, value: '$1,414' },
+}
+
+/* ============================================================
+   Testimonials data
+   ============================================================ */
+const testimonials = [
+  { text: 'Decision markets harness the predictive power of financial markets and asset prices to guide decision-making, with participants placing real monetary stakes behind their forecasts.', author: 'Stellar Research' },
+  { text: 'NovaDAO brings real accountability to crypto fundraising. The bid wall mechanism gives me confidence that teams are incentivized to deliver.', author: 'Early Participant' },
+  { text: 'Finally a platform where token holders have genuine oversight through market-based governance rather than plutocratic voting.', author: 'DeFi Analyst' },
+]
 
 /* ============================================================
    SVG Icon Components — clean outline style, blue accent
@@ -181,9 +199,15 @@ const proposals = [
 function App() {
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
   const [connecting, setConnecting] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [testimonialIdx, setTestimonialIdx] = useState(0)
+  const [commitModal, setCommitModal] = useState<string | null>(null)
+  const [commitAmount, setCommitAmount] = useState('')
+  const [commitSuccess, setCommitSuccess] = useState<string | null>(null)
+  const [votes, setVotes] = useState<Record<string, string>>({})
+  const sectionsRef = useRef<Map<string, HTMLElement>>(new Map())
 
   useEffect(() => {
-    // Try to restore previous session
     try {
       StellarWalletsKit.getAddress().then(({ address }) => {
         if (address) setWalletAddress(address)
@@ -191,28 +215,56 @@ function App() {
     } catch {}
   }, [])
 
+  // Fade-in on scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) e.target.classList.add('visible')
+      })
+    }, { threshold: 0.1 })
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el))
+    return () => observer.disconnect()
+  }, [])
+
   const handleConnect = async () => {
     setConnecting(true)
     try {
       const { address } = await StellarWalletsKit.authModal()
       setWalletAddress(address)
-    } catch {
-      // User closed modal or connection failed
-    }
+    } catch {}
     setConnecting(false)
   }
 
   const handleDisconnect = async () => {
     await StellarWalletsKit.disconnect()
     setWalletAddress(null)
+    setMobileMenuOpen(false)
   }
 
-  const handleProfile = () => {
-    StellarWalletsKit.profileModal()
+  const handleProfile = () => { StellarWalletsKit.profileModal() }
+
+  const truncateAddress = (addr: string) => `${addr.slice(0, 4)}...${addr.slice(-4)}`
+
+  const scrollTo = useCallback((id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    setMobileMenuOpen(false)
+  }, [])
+
+  const handleCommit = (projectName: string) => {
+    setCommitModal(projectName)
+    setCommitAmount('')
+    setCommitSuccess(null)
   }
 
-  const truncateAddress = (addr: string) =>
-    `${addr.slice(0, 4)}...${addr.slice(-4)}`
+  const confirmCommit = () => {
+    if (!commitAmount || isNaN(Number(commitAmount))) return
+    setCommitSuccess(commitModal)
+    setTimeout(() => { setCommitModal(null); setCommitSuccess(null) }, 2000)
+  }
+
+  const handleVote = (title: string, direction: string) => {
+    setVotes(v => ({ ...v, [title]: direction }))
+  }
 
   return (
     <>
@@ -225,10 +277,19 @@ function App() {
             <Logo />
             NovaDAO
           </div>
-          <div className="navbar-links">
-            <button className="btn btn-outline">All projects</button>
+          <button className="mobile-menu-btn" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              {mobileMenuOpen
+                ? <><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></>
+                : <><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" /></>
+              }
+            </svg>
+          </button>
+          <div className={`navbar-links${mobileMenuOpen ? ' open' : ''}`}>
+            <button className="btn btn-outline" onClick={() => scrollTo('projects')}>All projects</button>
             {walletAddress ? (
               <div className="wallet-connected">
+                <span style={{ fontSize: 13, color: 'var(--accent-light)', fontWeight: 600 }}>{SIMULATED_BALANCE}</span>
                 <button className="btn btn-wallet" onClick={handleProfile}>
                   <span className="wallet-dot" />
                   {truncateAddress(walletAddress)}
@@ -251,7 +312,7 @@ function App() {
       {/* Hero */}
       <section className="hero">
         <div className="container">
-          <div>
+          <div className="fade-in">
             <h1 className="hero-title">
               Launch an<br />
               <span className="serif-italic accent">ownership coin</span>
@@ -260,7 +321,7 @@ function App() {
               Raise XLM while putting ownership into the hands of your early users and believers.
             </p>
           </div>
-          <div className="hero-stat-card">
+          <div className="hero-stat-card fade-in">
             <StellarIcon />
             <div className="hero-stat-label">Cumulative Raised</div>
             <div className="hero-stat-value">$12,745,000</div>
@@ -269,7 +330,7 @@ function App() {
       </section>
 
       {/* Features */}
-      <section id="features" className="features-section">
+      <section id="features" className="features-section fade-in">
         <div className="container">
           <div className="features-header">
             <h3>We built a better fundraising system</h3>
@@ -297,8 +358,55 @@ function App() {
         </div>
       </section>
 
+      {/* Commit Modal */}
+      {commitModal && (
+        <div className="modal-overlay" onClick={() => setCommitModal(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            {commitSuccess ? (
+              <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                <div style={{ fontSize: 48, marginBottom: 16 }}>&#10003;</div>
+                <h3 style={{ marginBottom: 8 }}>Commitment Successful!</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>
+                  You committed {commitAmount} XLM to {commitSuccess}
+                </p>
+              </div>
+            ) : (
+              <>
+                <h3 style={{ marginBottom: 16 }}>Commit to {commitModal}</h3>
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ fontSize: 13, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>Amount (XLM)</label>
+                  <input
+                    type="number"
+                    value={commitAmount}
+                    onChange={e => setCommitAmount(e.target.value)}
+                    placeholder="0.00"
+                    style={{
+                      width: '100%', padding: '12px 16px', background: 'var(--bg-secondary)',
+                      border: '1px solid var(--border-color)', borderRadius: 10, color: 'white',
+                      fontSize: 16, fontFamily: 'inherit', outline: 'none',
+                    }}
+                  />
+                </div>
+                {commitAmount && !isNaN(Number(commitAmount)) && Number(commitAmount) > 0 && (
+                  <div style={{
+                    padding: '12px 16px', background: 'var(--bg-secondary)', borderRadius: 10,
+                    marginBottom: 16, fontSize: 14, color: 'var(--text-secondary)',
+                  }}>
+                    Estimated tokens: <strong style={{ color: 'white' }}>{Math.floor(Number(commitAmount) * 121.35).toLocaleString()}</strong>
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setCommitModal(null)}>Cancel</button>
+                  <button className="btn btn-primary" style={{ flex: 1 }} onClick={confirmCommit}>Confirm</button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Projects */}
-      <section id="projects" className="projects-section">
+      <section id="projects" className="projects-section fade-in" ref={el => { if (el) sectionsRef.current.set('projects', el) }}>
         <div className="container">
           <div className="projects-header">
             <h3>Join a community</h3>
@@ -333,7 +441,18 @@ function App() {
                       <span className="project-price-label">Price</span>
                       <span className="project-price-value">{p.price}</span>
                     </div>
-                    <button className="btn-buy">Buy {p.ticker}</button>
+                    {walletAddress && SIMULATED_POSITIONS[p.name] ? (
+                      <div style={{
+                        padding: '10px 16px', background: 'rgba(66,190,101,0.1)', border: '1px solid rgba(66,190,101,0.3)',
+                        borderRadius: 10, marginBottom: 12, fontSize: 13, display: 'flex', justifyContent: 'space-between',
+                      }}>
+                        <span style={{ color: 'var(--success)' }}>Your position</span>
+                        <span style={{ color: 'white', fontWeight: 600 }}>{SIMULATED_POSITIONS[p.name].tokens.toLocaleString()} {p.ticker}</span>
+                      </div>
+                    ) : null}
+                    <button className="btn-buy" onClick={() => walletAddress ? handleCommit(p.name) : handleConnect()}>
+                      {walletAddress ? `Buy ${p.ticker}` : 'Connect to Buy'}
+                    </button>
                   </>
                 ) : (
                   <>
@@ -350,8 +469,9 @@ function App() {
                         <div className="project-stat-label">min. raise</div>
                       </div>
                     </div>
-                    <button className="btn-buy" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
-                      Minimum not met
+                    <button className="btn-buy" onClick={() => walletAddress ? handleCommit(p.name) : handleConnect()}
+                      style={!walletAddress ? { background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' } : {}}>
+                      {walletAddress ? 'Commit XLM' : 'Connect to Participate'}
                     </button>
                   </>
                 )}
@@ -451,7 +571,20 @@ function App() {
                   </div>
                   <div className="proposal-actions">
                     <span className="proposal-status">{prop.status}</span>
-                    <button className="proposal-view">View</button>
+                    {walletAddress && prop.status === 'ACTIVE' && !votes[prop.title] ? (
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button className="proposal-view" style={{ background: 'rgba(66,190,101,0.15)', color: 'var(--success)', border: '1px solid rgba(66,190,101,0.3)' }}
+                          onClick={() => handleVote(prop.title, 'PASS')}>Pass</button>
+                        <button className="proposal-view" style={{ background: 'rgba(250,77,86,0.15)', color: 'var(--error)', border: '1px solid rgba(250,77,86,0.3)' }}
+                          onClick={() => handleVote(prop.title, 'FAIL')}>Fail</button>
+                      </div>
+                    ) : votes[prop.title] ? (
+                      <span style={{ fontSize: 12, fontWeight: 600, color: votes[prop.title] === 'PASS' ? 'var(--success)' : 'var(--error)' }}>
+                        Voted {votes[prop.title]}
+                      </span>
+                    ) : (
+                      <button className="proposal-view">View</button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -460,24 +593,73 @@ function App() {
         </div>
       </section>
 
+      {/* Portfolio (wallet connected only) */}
+      {walletAddress && (
+        <section className="portfolio-section fade-in" style={{ padding: '0 0 80px' }}>
+          <div className="container">
+            <div style={{
+              padding: '20px 0', borderTop: '1px solid var(--border-color)',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24,
+            }}>
+              <h3 style={{ fontSize: 15, fontWeight: 500, color: 'var(--text-secondary)' }}>Your Portfolio</h3>
+              <span style={{ fontSize: 14, color: 'var(--accent-light)' }}>Total: $7,610</span>
+            </div>
+            <div className="projects-grid">
+              {Object.entries(SIMULATED_POSITIONS).map(([name, pos]) => (
+                <div className="project-card" key={name}>
+                  <div className="project-name" style={{ fontSize: 18 }}>{name}</div>
+                  <div className="project-stats" style={{ marginTop: 12 }}>
+                    <div>
+                      <div className="project-stat-value">{pos.tokens.toLocaleString()}</div>
+                      <div className="project-stat-label">tokens</div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div className="project-stat-value">{pos.value}</div>
+                      <div className="project-stat-label">value</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {Object.keys(votes).length > 0 && (
+                <div className="project-card">
+                  <div className="project-name" style={{ fontSize: 18 }}>Voting History</div>
+                  {Object.entries(votes).map(([title, dir]) => (
+                    <div key={title} style={{
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                      padding: '8px 0', borderBottom: '1px solid var(--border-color)', fontSize: 13,
+                    }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>{title.slice(0, 30)}...</span>
+                      <span style={{ fontWeight: 600, color: dir === 'PASS' ? 'var(--success)' : 'var(--error)' }}>{dir}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Testimonials */}
-      <section className="testimonials-section">
+      <section className="testimonials-section fade-in">
         <div className="container">
           <div className="testimonial-card">
             <p className="testimonial-text serif">
-              Decision markets harness the predictive power of financial markets and asset prices to guide decision-making, with participants placing real monetary stakes behind their forecasts.
+              {testimonials[testimonialIdx].text}
             </p>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
               <div className="testimonial-author">
                 <div className="testimonial-avatar"><IconStar /></div>
-                <span className="testimonial-name">Stellar Research</span>
+                <span className="testimonial-name">{testimonials[testimonialIdx].author}</span>
               </div>
               <div className="testimonial-controls">
-                <div className="testimonial-dot active" />
-                <div className="testimonial-dot" />
-                <div className="testimonial-dot" />
-                <button className="testimonial-nav-btn" style={{ marginLeft: 12 }}>‹</button>
-                <button className="testimonial-nav-btn">›</button>
+                {testimonials.map((_, i) => (
+                  <div key={i} className={`testimonial-dot${i === testimonialIdx ? ' active' : ''}`}
+                    onClick={() => setTestimonialIdx(i)} style={{ cursor: 'pointer' }} />
+                ))}
+                <button className="testimonial-nav-btn" style={{ marginLeft: 12 }}
+                  onClick={() => setTestimonialIdx(i => (i - 1 + testimonials.length) % testimonials.length)}>&#8249;</button>
+                <button className="testimonial-nav-btn"
+                  onClick={() => setTestimonialIdx(i => (i + 1) % testimonials.length)}>&#8250;</button>
               </div>
             </div>
           </div>

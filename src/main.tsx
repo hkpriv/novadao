@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { MDXProvider } from '@mdx-js/react'
 import './index.css'
 import App from './App.tsx'
+import Admin from './Admin.tsx'
 import DocsLayout from './DocsLayout.tsx'
 import { Card, CardGroup, Steps, Step, Tip, Note, Warning, Info, Tabs, Tab } from './MintlifyComponents.tsx'
 
@@ -32,6 +33,7 @@ createRoot(document.getElementById('root')!).render(
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="/docs" element={<DocsLayout />}>
             <Route index element={<DocsIndex />} />
             <Route path="benefits/founders" element={<BenefitsFounders />} />
