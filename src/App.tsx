@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 import { StellarWalletsKit } from '@creit-tech/stellar-wallets-kit/sdk'
 import { defaultModules } from '@creit-tech/stellar-wallets-kit/modules/utils'
+import { useStore } from './store.tsx'
 import './App.css'
 
 // Initialize Stellar Wallets Kit
@@ -155,48 +157,17 @@ const StellarIcon = () => (
   </svg>
 )
 
-const projects = [
-  {
-    name: 'StellarPay',
-    iconEl: <IconSend />,
-    iconBg: '#1A3050',
-    desc: 'Cross-border payments powered by Stellar network',
-    status: 'raised' as const,
-    raised: '$6.2M',
-    target: '$5.0M',
-    price: '$0.824',
-    ticker: 'SPAY',
-  },
-  {
-    name: 'LumenSwap',
-    iconEl: <IconRefreshCw />,
-    iconBg: '#1A3050',
-    desc: 'Decentralized exchange for Stellar assets',
-    status: 'raised' as const,
-    raised: '$4.5M',
-    target: '$3.0M',
-    price: '$0.456',
-    ticker: 'LSWP',
-  },
-  {
-    name: 'AnchorFi',
-    iconEl: <IconAnchor />,
-    iconBg: '#1A3050',
-    desc: 'Anchor services for fiat on/off ramps',
-    status: 'live' as const,
-    committed: '$1.8M',
-    minRaise: '$2.5M',
-    progress: 72,
-  },
-]
-
-const proposals = [
-  { org: 'STELLARPAY', title: 'Q2 Marketing Budget Allocation', status: 'PASSED' },
-  { org: 'LUMENSWAP', title: 'Liquidity Pool Expansion Proposal', status: 'PASSED' },
-  { org: 'ANCHORFI', title: 'New Fiat Corridor: EUR/XLM', status: 'ACTIVE' },
-]
+// Icon map for dynamic project rendering
+const PROJECT_ICONS: Record<string, React.ReactNode> = {
+  StellarPay: <IconSend />,
+  LumenSwap: <IconRefreshCw />,
+  AnchorFi: <IconAnchor />,
+}
+const DEFAULT_ICON = <IconDollarSign />
 
 function App() {
+  const { projects, proposals } = useStore()
+  const visibleProjects = projects.filter(p => p.visible)
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
   const [connecting, setConnecting] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -289,6 +260,7 @@ function App() {
             <button className="btn btn-outline" onClick={() => scrollTo('projects')}>All projects</button>
             {walletAddress ? (
               <div className="wallet-connected">
+                <Link to="/dashboard" className="btn btn-outline btn-sm" style={{ fontSize: 13 }}>Dashboard</Link>
                 <span style={{ fontSize: 13, color: 'var(--accent-light)', fontWeight: 600 }}>{SIMULATED_BALANCE}</span>
                 <button className="btn btn-wallet" onClick={handleProfile}>
                   <span className="wallet-dot" />
@@ -410,36 +382,37 @@ function App() {
         <div className="container">
           <div className="projects-header">
             <h3>Join a community</h3>
-            <span className="count">3 LAUNCHED TO-DATE</span>
+            <span className="count">{visibleProjects.length} LAUNCHED TO-DATE</span>
           </div>
           <div className="projects-grid">
-            {projects.map((p) => (
-              <div className="project-card" key={p.name}>
+            {visibleProjects.map((p) => (
+              <div className="project-card" key={p.id}>
                 <div className="project-card-header">
                   <div className="project-icon" style={{ background: p.iconBg }}>
-                    {p.iconEl}
+                    {PROJECT_ICONS[p.name] || DEFAULT_ICON}
                   </div>
                   {p.status === 'raised' && <span className="badge badge-raised">RAISED</span>}
                   {p.status === 'live' && <span className="badge badge-live">LIVE</span>}
+                  {p.status === 'draft' && <span className="badge" style={{ background: 'rgba(90,122,158,0.15)', color: 'var(--text-muted)', border: '1px solid rgba(90,122,158,0.3)' }}>DRAFT</span>}
                 </div>
                 <div className="project-name">{p.name}</div>
-                <div className="project-desc">{p.desc}</div>
+                <div className="project-desc">{p.description}</div>
 
                 {p.status === 'raised' ? (
                   <>
                     <div className="project-stats">
                       <div>
-                        <div className="project-stat-value">{p.raised}</div>
+                        <div className="project-stat-value">{p.raised || p.maxRaise}</div>
                         <div className="project-stat-label">raised</div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div className="project-stat-value">{p.target}</div>
+                        <div className="project-stat-value">{p.target || p.minRaise}</div>
                         <div className="project-stat-label">target</div>
                       </div>
                     </div>
                     <div className="project-price-row">
                       <span className="project-price-label">Price</span>
-                      <span className="project-price-value">{p.price}</span>
+                      <span className="project-price-value">{p.price || '$0.100'}</span>
                     </div>
                     {walletAddress && SIMULATED_POSITIONS[p.name] ? (
                       <div style={{
@@ -457,11 +430,11 @@ function App() {
                 ) : (
                   <>
                     <div className="progress-bar">
-                      <div className="progress-fill" style={{ width: `${p.progress}%` }} />
+                      <div className="progress-fill" style={{ width: `${p.progress || 0}%` }} />
                     </div>
                     <div className="project-stats">
                       <div>
-                        <div className="project-stat-value">{p.committed}</div>
+                        <div className="project-stat-value">{p.committed || '$0'}</div>
                         <div className="project-stat-label">committed</div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
@@ -564,14 +537,14 @@ function App() {
 
             <div className="oversight-proposals">
               {proposals.map((prop) => (
-                <div className="proposal-item" key={prop.title}>
+                <div className="proposal-item" key={prop.id}>
                   <div className="proposal-left">
                     <span className="proposal-org">{prop.org}</span>
                     <span className="proposal-title">{prop.title}</span>
                   </div>
                   <div className="proposal-actions">
-                    <span className="proposal-status">{prop.status}</span>
-                    {walletAddress && prop.status === 'ACTIVE' && !votes[prop.title] ? (
+                    <span className="proposal-status">{prop.status.toUpperCase()}</span>
+                    {walletAddress && prop.status === 'active' && !votes[prop.title] ? (
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button className="proposal-view" style={{ background: 'rgba(66,190,101,0.15)', color: 'var(--success)', border: '1px solid rgba(66,190,101,0.3)' }}
                           onClick={() => handleVote(prop.title, 'PASS')}>Pass</button>

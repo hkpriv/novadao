@@ -3,8 +3,10 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { MDXProvider } from '@mdx-js/react'
 import './index.css'
+import { StoreProvider } from './store.tsx'
 import App from './App.tsx'
 import Admin from './Admin.tsx'
+import Dashboard from './Dashboard.tsx'
 import DocsLayout from './DocsLayout.tsx'
 import { Card, CardGroup, Steps, Step, Tip, Note, Warning, Info, Tabs, Tab } from './MintlifyComponents.tsx'
 
@@ -29,10 +31,12 @@ const components = { Card, CardGroup, Steps, Step, Tip, Note, Warning, Info, Tab
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    <StoreProvider>
     <MDXProvider components={components}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/docs" element={<DocsLayout />}>
             <Route index element={<DocsIndex />} />
@@ -54,5 +58,6 @@ createRoot(document.getElementById('root')!).render(
         </Routes>
       </BrowserRouter>
     </MDXProvider>
+    </StoreProvider>
   </StrictMode>,
 )

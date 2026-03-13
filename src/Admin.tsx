@@ -1,34 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { StellarWalletsKit } from '@creit-tech/stellar-wallets-kit/sdk'
+import { useStore } from './store.tsx'
 
-interface Project {
-  id: string
-  name: string
-  ticker: string
-  description: string
-  tokenSupply: string
-  minRaise: string
-  maxRaise: string
-  duration: number
-  status: 'draft' | 'live' | 'raised' | 'refunding'
-  visible: boolean
-}
-
-interface Proposal {
-  id: string
-  projectId: string
-  title: string
-  description: string
-  votingDays: number
-  status: 'draft' | 'active' | 'passed' | 'failed'
-}
-
-const ADMIN_ADDRESS = 'GADMIN' // placeholder — will be replaced with real admin address
-
-const defaultProjects: Project[] = [
-  { id: '1', name: 'StellarPay', ticker: 'SPAY', description: 'Cross-border payments powered by Stellar network', tokenSupply: '10,000,000', minRaise: '$5,000,000', maxRaise: '$8,000,000', duration: 4, status: 'raised', visible: true },
-  { id: '2', name: 'LumenSwap', ticker: 'LSWP', description: 'Decentralized exchange for Stellar assets', tokenSupply: '10,000,000', minRaise: '$3,000,000', maxRaise: '$5,000,000', duration: 4, status: 'raised', visible: true },
-  { id: '3', name: 'AnchorFi', ticker: 'ANFI', description: 'Anchor services for fiat on/off ramps', tokenSupply: '10,000,000', minRaise: '$2,500,000', maxRaise: '$4,000,000', duration: 4, status: 'live', visible: true },
+// Admin addresses — add your Stellar public key here to grant admin access
+const ADMIN_ADDRESSES = [
+  'GADMIN', // placeholder — replace with real admin address
 ]
 
 const inputStyle: React.CSSProperties = {
@@ -48,9 +25,71 @@ const cardStyle: React.CSSProperties = {
 }
 
 export default function Admin() {
-  const [projects, setProjects] = useState<Project[]>(defaultProjects)
-  const [proposals, setProposals] = useState<Proposal[]>([])
+  const store = useStore()
+  const [walletAddress, setWalletAddress] = useState<string | null>(null)
+  const [connecting, setConnecting] = useState(false)
   const [tab, setTab] = useState<'projects' | 'create' | 'proposals'>('projects')
+
+  useEffect(() => {
+    try {
+      StellarWalletsKit.getAddress().then(({ address }) => {
+        if (address) setWalletAddress(address)
+      }).catch(() => {})
+    } catch {}
+  }, [])
+
+  const handleAdminConnect = async () => {
+    setConnecting(true)
+    try {
+      const { address } = await StellarWalletsKit.authModal()
+      setWalletAddress(address)
+    } catch {}
+    setConnecting(false)
+  }
+
+  const isAdmin = walletAddress && ADMIN_ADDRESSES.includes(walletAddress)
+
+  // Gate: must connect wallet first
+  if (!walletAddress) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', maxWidth: 400 }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>&#128274;</div>
+          <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 12 }}>Admin Access</h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 24, lineHeight: 1.6 }}>
+            Connect your wallet to access the admin dashboard. Only authorized addresses can manage projects and proposals.
+          </p>
+          <button onClick={handleAdminConnect} disabled={connecting} style={{
+            padding: '12px 32px', borderRadius: 10, border: 'none',
+            background: 'var(--accent)', color: 'white', fontWeight: 600,
+            fontSize: 14, cursor: 'pointer', fontFamily: 'inherit',
+          }}>{connecting ? 'Connecting...' : 'Connect Wallet'}</button>
+          <div style={{ marginTop: 16 }}>
+            <Link to="/" style={{ color: 'var(--accent-light)', fontSize: 14 }}>&larr; Back to site</Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Gate: must be admin address
+  if (!isAdmin) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', maxWidth: 400 }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>&#9940;</div>
+          <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 12 }}>Access Denied</h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 8, lineHeight: 1.6 }}>
+            Your address is not authorized for admin access.
+          </p>
+          <p style={{ color: 'var(--text-muted)', fontSize: 12, marginBottom: 24, fontFamily: 'monospace' }}>
+            {walletAddress}
+          </p>
+          <Link to="/" style={{ color: 'var(--accent-light)', fontSize: 14 }}>&larr; Back to site</Link>
+        </div>
+      </div>
+    )
+  }
   const [form, setForm] = useState({ name: '', ticker: '', description: '', tokenSupply: '10,000,000', minRaise: '', maxRaise: '', duration: 4 })
   const [proposalForm, setProposalForm] = useState({ projectId: '', title: '', description: '', votingDays: 7 })
   const [toast, setToast] = useState<string | null>(null)
@@ -59,40 +98,31 @@ export default function Admin() {
 
   const createProject = () => {
     if (!form.name || !form.ticker || !form.minRaise) return
-    const newProject: Project = {
-      id: String(Date.now()),
+    store.addProject({
       name: form.name, ticker: form.ticker.toUpperCase(),
       description: form.description, tokenSupply: form.tokenSupply,
       minRaise: form.minRaise, maxRaise: form.maxRaise,
       duration: form.duration, status: 'draft', visible: false,
-    }
-    setProjects(p => [...p, newProject])
+      iconBg: '#1A3050',
+    })
     setForm({ name: '', ticker: '', description: '', tokenSupply: '10,000,000', minRaise: '', maxRaise: '', duration: 4 })
     setTab('projects')
-    showToast(`Project "${newProject.name}" created as draft`)
-  }
-
-  const toggleVisibility = (id: string) => {
-    setProjects(ps => ps.map(p => p.id === id ? { ...p, visible: !p.visible } : p))
-  }
-
-  const updateStatus = (id: string, status: Project['status']) => {
-    setProjects(ps => ps.map(p => p.id === id ? { ...p, status } : p))
+    showToast(`Project "${form.name}" created as draft`)
   }
 
   const createProposal = () => {
     if (!proposalForm.projectId || !proposalForm.title) return
-    const newProposal: Proposal = {
-      id: String(Date.now()),
+    const project = store.projects.find(p => p.id === proposalForm.projectId)
+    store.addProposal({
       projectId: proposalForm.projectId,
+      org: project?.name.toUpperCase() || 'UNKNOWN',
       title: proposalForm.title,
       description: proposalForm.description,
       votingDays: proposalForm.votingDays,
-      status: 'draft',
-    }
-    setProposals(p => [...p, newProposal])
+      status: 'active',
+    })
     setProposalForm({ projectId: '', title: '', description: '', votingDays: 7 })
-    showToast(`Proposal "${newProposal.title}" created`)
+    showToast(`Proposal "${proposalForm.title}" created`)
   }
 
   const statusColor = (s: string) => {
@@ -126,7 +156,7 @@ export default function Admin() {
           <span style={{ fontWeight: 700, fontSize: 16 }}>Admin Dashboard</span>
         </div>
         <span style={{ fontSize: 12, color: 'var(--text-muted)', background: 'var(--bg-card)', padding: '4px 12px', borderRadius: 20 }}>
-          {ADMIN_ADDRESS}
+          {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
         </span>
       </div>
 
@@ -149,8 +179,8 @@ export default function Admin() {
         {/* Projects Table */}
         {tab === 'projects' && (
           <div>
-            <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 24 }}>All Projects</h2>
-            {projects.map(p => (
+            <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 24 }}>All Projects ({store.projects.length})</h2>
+            {store.projects.map(p => (
               <div key={p.id} style={{ ...cardStyle, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
                 <div style={{ flex: 1, minWidth: 200 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
@@ -160,7 +190,7 @@ export default function Admin() {
                   <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{p.ticker} &middot; Supply: {p.tokenSupply} &middot; Min: {p.minRaise}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  <button onClick={() => toggleVisibility(p.id)} style={{
+                  <button onClick={() => store.updateProject(p.id, { visible: !p.visible })} style={{
                     padding: '6px 14px', borderRadius: 6, border: '1px solid var(--border-color)',
                     background: p.visible ? 'rgba(66,190,101,0.15)' : 'var(--bg-secondary)',
                     color: p.visible ? 'var(--success)' : 'var(--text-muted)',
@@ -169,19 +199,24 @@ export default function Admin() {
                     {p.visible ? 'Visible' : 'Hidden'}
                   </button>
                   {p.status === 'draft' && (
-                    <button onClick={() => updateStatus(p.id, 'live')} style={{
+                    <button onClick={() => store.updateProject(p.id, { status: 'live' })} style={{
                       padding: '6px 14px', borderRadius: 6, border: 'none',
                       background: 'var(--accent)', color: 'white',
                       cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600,
                     }}>Go Live</button>
                   )}
                   {p.status === 'live' && (
-                    <button onClick={() => updateStatus(p.id, 'raised')} style={{
+                    <button onClick={() => store.updateProject(p.id, { status: 'raised' })} style={{
                       padding: '6px 14px', borderRadius: 6, border: 'none',
                       background: 'var(--success)', color: 'white',
                       cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600,
                     }}>Mark Raised</button>
                   )}
+                  <button onClick={() => store.deleteProject(p.id)} style={{
+                    padding: '6px 14px', borderRadius: 6, border: '1px solid rgba(250,77,86,0.3)',
+                    background: 'rgba(250,77,86,0.1)', color: 'var(--error)',
+                    cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600,
+                  }}>Delete</button>
                 </div>
               </div>
             ))}
@@ -230,7 +265,7 @@ export default function Admin() {
                   <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Preview</div>
                   <div style={{ fontSize: 20, fontWeight: 600, marginBottom: 4 }}>{form.name}</div>
                   <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>{form.description || 'No description'}</div>
-                  <div style={{ display: 'flex', gap: 24, fontSize: 13 }}>
+                  <div style={{ display: 'flex', gap: 24, fontSize: 13, flexWrap: 'wrap' }}>
                     <span><strong>{form.ticker.toUpperCase() || '???'}</strong></span>
                     <span style={{ color: 'var(--text-muted)' }}>Supply: {form.tokenSupply}</span>
                     <span style={{ color: 'var(--text-muted)' }}>Duration: {form.duration} days</span>
@@ -265,7 +300,7 @@ export default function Admin() {
                   <label style={labelStyle}>Project *</label>
                   <select style={inputStyle} value={proposalForm.projectId} onChange={e => setProposalForm(f => ({ ...f, projectId: e.target.value }))}>
                     <option value="">Select project...</option>
-                    {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    {store.projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
                 </div>
                 <div>
@@ -288,18 +323,25 @@ export default function Admin() {
               }}>Create Proposal</button>
             </div>
 
-            {proposals.length > 0 && (
+            {store.proposals.length > 0 && (
               <>
-                <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, marginTop: 32 }}>Existing Proposals</h3>
-                {proposals.map(pr => (
-                  <div key={pr.id} style={{ ...cardStyle, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
-                    <div>
+                <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, marginTop: 32 }}>All Proposals ({store.proposals.length})</h3>
+                {store.proposals.map(pr => (
+                  <div key={pr.id} style={{ ...cardStyle, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+                    <div style={{ flex: 1, minWidth: 200 }}>
                       <div style={{ fontSize: 11, textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 2 }}>
-                        {projects.find(p => p.id === pr.projectId)?.name}
+                        {pr.org}
                       </div>
                       <div style={{ fontWeight: 600 }}>{pr.title}</div>
                     </div>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: statusColor(pr.status), textTransform: 'uppercase' }}>{pr.status}</span>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: statusColor(pr.status), textTransform: 'uppercase' }}>{pr.status}</span>
+                      <button onClick={() => store.deleteProposal(pr.id)} style={{
+                        padding: '6px 14px', borderRadius: 6, border: '1px solid rgba(250,77,86,0.3)',
+                        background: 'rgba(250,77,86,0.1)', color: 'var(--error)',
+                        cursor: 'pointer', fontSize: 12, fontFamily: 'inherit', fontWeight: 600,
+                      }}>Delete</button>
+                    </div>
                   </div>
                 ))}
               </>
